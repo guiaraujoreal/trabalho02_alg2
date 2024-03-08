@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TAM 1000
+#define TAM 100
 
 typedef struct {
     char codigo[TAM];
