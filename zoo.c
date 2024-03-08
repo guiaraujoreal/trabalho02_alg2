@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #define TAM 100
 
@@ -24,24 +25,25 @@ void cadSetor(char **c_Setores, int f_nSetores) {
 }
 
 //Funcao para mostrar setores
-void viewSetores(char **setorView, int n_StoresView) {
+void viewSetores(char **setorView, int n_SetoresView) {
     printf("\n\t\t ==== LISTAGEM DE SETORES ====");
     printf("\n\nID \t SETORES \n");
 
-    for(int i = 0; i < n_StoresView; i++) {
+    for(int i = 0; i < n_SetoresView; i++) {
         printf("\n%d \t %s", i + 1, setorView[i]);
     }
 }
 
 // Funcao para cadastrar novos animais
 void cadAnimal(Info_animal ***animal, char **m_Setor, int c_nSetores) {
-    char set;
+    char set[50];
     printf("\n\t\t==== (+) CADASTRAR UM NOVO ANIMAL ====\n\n(Voce pode listar os setores digitando 'S')");
 
     printf("\n\n(?) Em qual setor este animal se enquadra?\n-> ");
-    scanf("%c", &set);
+    fgets(set,sizeof(set),stdin);
 
-    if(isalpha(set)) {
+    // Remove os espaços
+    if(tolower(set[0]) == 's' && (set[1] == '\n' || set[1] == ' ')) {
         viewSetores(m_Setor, c_nSetores);
     }
 
