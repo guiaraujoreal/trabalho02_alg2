@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define TAM 100
 
@@ -11,13 +12,39 @@ typedef struct {
     char especie[TAM];
 } Info_animal;
 
-//funcao para cadastrar os setores
+
+
+// Funcao para cadastrar os setores
 void cadSetor(char **c_Setores, int f_nSetores) {
     for(int i = 0; i < f_nSetores; i++) {
         setbuf(stdin, NULL);
         printf("\nNome do setor: ");
         fgets(c_Setores[i], TAM, stdin);
     }
+}
+
+//Funcao para mostrar setores
+void viewSetores(char **setorView, int n_StoresView) {
+    printf("\n\t\t ==== LISTAGEM DE SETORES ====");
+    printf("\n\nID \t SETORES \n");
+
+    for(int i = 0; i < n_StoresView; i++) {
+        printf("\n%d \t %s", i + 1, setorView[i]);
+    }
+}
+
+// Funcao para cadastrar novos animais
+void cadAnimal(Info_animal ***animal, char **m_Setor, int c_nSetores) {
+    char set;
+    printf("\n\t\t==== (+) CADASTRAR UM NOVO ANIMAL ====\n\n(Voce pode listar os setores digitando 'S')");
+
+    printf("\n\n(?) Em qual setor este animal se enquadra?\n-> ");
+    scanf("%c", &set);
+
+    if(isalpha(set)) {
+        viewSetores(m_Setor, c_nSetores);
+    }
+
 }
 
 //funcao para adicionar setores
@@ -48,6 +75,10 @@ void addSetor(char ***a_Setores, int *a_nSetores) {
     *a_nSetores += qntdSetor;
 }
 
+//Funcao para remover setores
+// void removeSetor(char ***r_Setores, int *r_nSetores) {
+    
+// }
 
 int main() {
     Info_animal ***zoologico;
@@ -88,12 +119,9 @@ int main() {
     }
 
     cadSetor(setores, nSetores);
-    addSetor(&setores, p_nSetores);
-    printf("%d - %d",*p_nSetores, nSetores);
+    cadAnimal(zoologico, setores, nSetores);
 
     //for(int i = 0; i < nSetores; i++) printf("%s", setores[i]);
 
     return 0;
-    
-
 }
