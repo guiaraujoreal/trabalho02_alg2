@@ -79,7 +79,7 @@ void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula
                 especie[especie_len - 1] = '\0';
             }
 
-            printf("\n%d\t\t%s\t\t%s\t\t%.2f\t\t%.2f\t\t%s", animal + 1, codigo, nome, altura, peso, especie);
+            printf("\n%d\t\t%s\t\t%s\t\t%.2f\t\t\t\t%.2f\t\t%s", animal + 1, codigo, nome, altura, peso, especie);
         }
 
 
@@ -164,15 +164,29 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 }
 
 // Funcao para adicionar setores
-void addSetor(char ***a_Setores, int *a_numero_doSetores) {
+void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int nJaulas, int nAnimais, int ***qntdAnimais) {
     int qntdSetor = 0;
     printf("\n>> ADICIONAR SETOR: \n\nDeseja adicionar quantos setores? ");
     scanf("%d", &qntdSetor);
 
-    *a_Setores = (char **)realloc(*a_Setores, ((*a_numero_doSetores) + qntdSetor) * sizeof(char *));
-    if (*a_Setores == NULL) {
+    // Realoca memória para os nomes dos setores
+    *m_Setores = (char **)realloc(*m_Setores, ((*a_numero_doSetores) + qntdSetor) * sizeof(char *));
+    if (*m_Setores == NULL) {
         exit(1);
     }
+
+    // Realoca memória para as informações dos animais no zoo
+    *m_Zoo = (Info_animal ***)realloc(*m_Zoo, ((*a_numero_doSetores) + qntdSetor) * sizeof(Info_animal **));
+    if (*m_Zoo == NULL) {
+        exit(1);
+    }
+
+    // Realoca memória para as informações da quantia de animais
+    *qntdAnimais = (int **)realloc(*qntdAnimais, ((*a_numero_doSetores) + qntdSetor) * sizeof(int *));
+    if (*qntdAnimais == NULL) {
+        exit(1);
+    }
+
 
     // Nome dos novos setores
     for (int i = (*a_numero_doSetores); i < (*a_numero_doSetores) + qntdSetor; i++) {
@@ -180,16 +194,42 @@ void addSetor(char ***a_Setores, int *a_numero_doSetores) {
         setbuf(stdin, NULL);
 
         // Aloca memória para o nome do setor
-        (*a_Setores)[i] = (char *)malloc(TAM * sizeof(char));
-        if ((*a_Setores)[i] == NULL) {
+        (*m_Setores)[i] = (char *)malloc(TAM * sizeof(char));
+        if ((*m_Setores)[i] == NULL) {
             exit(1);
         }
 
-        fgets((*a_Setores)[i], TAM, stdin);
+        fgets((*m_Setores)[i], TAM, stdin);
+
+        // Aloca memória para as informações dos animais no setor
+        (*m_Zoo)[i] = (Info_animal **)malloc(nJaulas * sizeof(Info_animal *));
+        if ((*m_Zoo)[i] == NULL) {
+            exit(1);
+        }
+
+        (*qntdAnimais)[i] = (int *)malloc(nJaulas * sizeof(int));
+        if ((*qntdAnimais)[i] == NULL) {
+            exit(1);
+        }
+
+        for (int j = 0; j < nJaulas; j++) {
+            (*m_Zoo)[i][j] = (Info_animal *)malloc(nAnimais * sizeof(Info_animal));
+            if ((*m_Zoo)[i][j] == NULL) {
+                exit(1);
+            }
+        }
+    }
+
+    //Zerar as novas posicoes da matriz de quantidade "m_qntdAnimais"
+    for(int setor = (*a_numero_doSetores); setor < ((*a_numero_doSetores) + qntdSetor); setor++) {
+        for(int jaula = 0; jaula < nJaulas; jaula++) {
+            (*qntdAnimais)[setor][jaula] = 0;
+        }
     }
 
     *a_numero_doSetores += qntdSetor;
 }
+
 
 //Funcao para remover setores
 // void removeSetor(char ***r_Setores, int *r_numero_doSetores) {
@@ -215,6 +255,8 @@ int main() {
     printf("\n(+) Agora, digite o numero de animais por jaula: ");
     scanf("%d", &nAnimais);
 
+    printf("\n\n(<->) So um instante, estamos salvando suas informacoes...");
+
     zoologico = (Info_animal ***)malloc(numero_doSetores * sizeof(Info_animal **));
     setores = (char **)malloc(numero_doSetores * sizeof(char *));
     qntdAnimais = (int **)malloc(numero_doSetores * sizeof(int *));
@@ -239,14 +281,18 @@ int main() {
                 exit(1);
             }
 
-            ///Zerar todas as posicoes
-            for(int animal = 0; animal < nAnimais; animal++) qntdAnimais[setor][jaula] = 0;
+            //Zerar todas as posicoes
+            qntdAnimais[setor][jaula] = 0;
         }
     }
+
+    printf("\n\n(<->) Deu certo!");
 
     cadSetor(setores, numero_doSetores);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    addSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, nAnimais, &qntdAnimais);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
 
