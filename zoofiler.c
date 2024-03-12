@@ -144,7 +144,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
     
     setbuf(stdin, NULL);
 
-    printf("\n\n(?)Qual eh o nome deste animal?\n-> ");
+    printf("\n\n(?) Qual eh o nome deste animal?\n-> ");
     fgets(animal[indiceSetor][indice_daJaula][indiceAnimal].nome, sizeof(animal[indiceSetor][numero_daJaula][indiceAnimal].nome), stdin);
 
     printf("\n\n(?) Qual eh o peso deste animal? (Em Kg)\n-> ");
@@ -190,7 +190,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
 
     // Nome dos novos setores
     for (int i = (*a_numero_doSetores); i < (*a_numero_doSetores) + qntdSetor; i++) {
-        printf("\nQual o nome do %do setor?\n->", i + 1);
+        printf("\nQual o nome do %do setor?\n-> ", i + 1);
         setbuf(stdin, NULL);
 
         // Aloca memória para o nome do setor
@@ -232,9 +232,53 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
 
 
 //Funcao para remover setores
-// void removeSetor(char ***r_Setores, int *r_numero_doSetores) {
+void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int nJaulas, int ***qntdAnimais) {
     
-// }
+    char select[TAM], nomeSetor_remove[TAM];
+    int indiceSetor_remove;
+
+    printf("\n\n\t\t===== (-) REMOVER UM SETOR =====\n\n(!) ESTEJA CIENTE DE QUE AO REMOVER UM SETOR, VOCE REMOVERA TODAS AS INFORMACOES CONTIDAS NELE.");
+    printf("\n\n(?) Voce esta ciente disso?(S ou s para 'Sim' e qualquer digito para 'Nao')\n-> ");
+    fgets(select, sizeof(select), stdin);
+
+    if(tolower(select[0]) != 's') {
+        printf("\nN digitado;");
+        return; //Encerra a funcao
+    }
+
+    //Mostra os setores cadastrados
+    viewSetores(*m_Setores, *a_numero_doSetores);
+
+    printf("\n\n(?) Qual o nome do setor que deseja remover? (Digite o nome exato)\n-> ");
+    fgets(nomeSetor_remove, sizeof(nomeSetor_remove), stdin);
+
+    for(int setor = 0; setor < (*a_numero_doSetores); setor++) {
+        if(strcmp(nomeSetor_remove, (*m_Setores)[setor]) == 0) {
+            indiceSetor_remove = setor;
+        }
+    }
+
+    //Remove o setor
+    free((*m_Setores)[indiceSetor_remove]);
+    free((*qntdAnimais)[indiceSetor_remove]);
+
+    for (int jaula = 0; jaula < nJaulas; jaula++) {
+        free((*m_Zoo)[indiceSetor_remove][jaula]);
+    }
+    free((*m_Zoo)[indiceSetor_remove]);
+
+    // Realocar os arrays de setores e quantidades de animais para remover o setor
+    for (int i = indiceSetor_remove; i < *a_numero_doSetores - 1; i++) {
+        (*m_Setores)[i] = (*m_Setores)[i + 1];
+        (*m_Zoo)[i] = (*m_Zoo)[i + 1];
+        (*qntdAnimais)[i] = (*qntdAnimais)[i + 1];
+    }
+
+
+    (*a_numero_doSetores)--;
+
+    printf("\n\n(<->) DEU CERTO! SETOR REMOVIDO PERMANENTEMENTE COM EXITO.");
+}
 
 int main() {
     Info_animal ***zoologico;
@@ -291,9 +335,11 @@ int main() {
     cadSetor(setores, numero_doSetores);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
     // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
     addSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, nAnimais, &qntdAnimais);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
     cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
 
     printf("\nChegou aqui");
