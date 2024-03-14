@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <locale.h>
+#include <limits.h>
 
 #define TAM 100
+#define TAM_MIN 20
 
 typedef struct {
     char codigo[TAM];
@@ -14,13 +17,58 @@ typedef struct {
 } Info_animal;
 
 
+// Funcao que verifica o maior peso por setor
+void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdSetores, int qntdJaulas, int qntdAnimais, int **matriz_qntdAnimais) {
+    printf("\n\n\t\t===== (#) ANIMAIS MAIS PESADOS POR SETOR =====");
+    printf("\n\n#\t\tSETOR\t\tANIMAL\t\tPESO(Kg)");
+
+    for(int setor = 0; setor < qntdSetores; setor++) {
+        float maiorPeso = __FLT_MIN__;
+        char nomeAnimal[TAM], nomeSetor[TAM];
+        int nenhumAnimalEncontrado = 1; // Variável para indicar se nenhum animal foi encontrado no setor
+
+        for(int jaula = 0; jaula < qntdJaulas; jaula++) {
+            for(int animais = 0; animais < qntdAnimais; animais++) {
+                if(matrizZoo[setor][jaula][animais].peso > maiorPeso) {
+                    maiorPeso = matrizZoo[setor][jaula][animais].peso;
+
+                    for(int i = 0; matrizZoo[setor][jaula][animais].nome[i] != '\0'; i++) {
+                        if(matrizZoo[setor][jaula][animais].nome[i] == '\n') {
+                            matrizZoo[setor][jaula][animais].nome[i] = '\0';
+                        }
+                    }
+                    strcpy(nomeAnimal, matrizZoo[setor][jaula][animais].nome);
+                    nenhumAnimalEncontrado = 0; // Se entramos neste bloco, significa que encontramos pelo menos um animal
+                }
+            }
+        }
+
+            // Verificar se nenhum animal foi encontrado no setor
+            if(nenhumAnimalEncontrado) {
+                strcpy(nomeAnimal, "Nenhum animal");
+            }
+
+            strcpy(nomeSetor, matrizSetores[setor]);
+
+            for(int i = 0; nomeSetor[i] != '\0'; i++) {
+                if(nomeSetor[i] == '\n') {
+                    nomeSetor[i] = '\0';
+                }
+            }
+
+        printf("\n\n%d\t\t%s\t\t%s\t\t%.2f", setor + 1, nomeSetor, nomeAnimal, maiorPeso);
+    }
+
+}
+
+
 // Funcao para cadastrar os setores
 void cadSetor(char **c_Setores, int f_numero_doSetores) {
-    printf("\n\n\t\t=== (+) CADASTRAR SETORES ===");
+    printf("\n\n\t\t=== (+) CADASTRAR SETORES PELA PRIMEIRA VEZ ===\n");
 
     for(int i = 0; i < f_numero_doSetores; i++) {
         setbuf(stdin, NULL);
-        printf("\nNome do setor: ");
+        printf("\n(#) Nome do %do setor: ", i + 1);
         fgets(c_Setores[i], TAM, stdin);
     }
 }
@@ -28,10 +76,24 @@ void cadSetor(char **c_Setores, int f_numero_doSetores) {
 //Funcao para mostrar setores
 void viewSetores(char **setorView, int n_SetoresView) {
     printf("\n\t\t ==== (#) LISTAGEM DE SETORES ====");
-    printf("\n\nID \t SETORES \n");
+    printf("\n\n# \t SETORES \n");
 
     for(int i = 0; i < n_SetoresView; i++) {
         printf("\n%d \t %s", i + 1, setorView[i]);
+    }
+}
+
+// Visualiza as jaulas daquele setor
+void viewJaulas(int **m_qntdAnimal,int qntdJaulas, int indiceSetor, int qntdAnimais) {
+    printf("\n\t\t=== (#) LISTA DE JAULAS DESTE SETOR' ===\n\nID\t\tQUANTIDADE DE ANIMAIS\t\tDISPONIBILIDADE\n");
+    char statusDisponibilidade[TAM];
+
+    for(int jaula = 0; jaula < qntdJaulas; jaula++) {
+
+        if(m_qntdAnimal[indiceSetor][jaula] >= qntdAnimais) strcpy(statusDisponibilidade,"Indisponivel");
+        else strcpy(statusDisponibilidade, "Disponivel");
+
+        printf("\n%d\t\t\t%d\t\t\t%s", jaula + 1, m_qntdAnimal[indiceSetor][jaula], statusDisponibilidade);
     }
 }
 
@@ -94,7 +156,7 @@ void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula
 
 // Funcao para cadastrar novos animais
 void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int **m_qntdAnimal, int qntdJaulas, int qntdAnimais) {
-    char set[TAM], statusDisponibilidade[TAM];
+    char set[TAM]; //statusDisponibilidade[TAM];
     int numero_daJaula, indiceSetor = 0, indiceAnimal = 0;
     printf("\n\t\t==== (+) CADASTRAR UM NOVO ANIMAL ====\n\n");
 
@@ -111,7 +173,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
         if(strcmp(matrizSetores[setor], set) == 0) indiceSetor = setor;//indiceSetor = setor
     }
 
-    // Remove a quebra de linha no final da palavra em 'set'
+    /*// Remove a quebra de linha no final da palavra em 'set'
     for(int i = 0; set[i] != '\0'; i++) if(set[i] == '\n') set[i] = '\0';
 
     printf("\n\t\t=== (#) LISTA DE JAULAS DO SETOR '%s' ===\n\nID\t\tQUANTIDADE DE ANIMAIS\t\tDISPONIBILIDADE\n", set);
@@ -121,7 +183,9 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
         else strcpy(statusDisponibilidade, "Disponivel");
 
         printf("\n%d\t\t\t%d\t\t\t%s", jaula + 1, m_qntdAnimal[indiceSetor][jaula], statusDisponibilidade);
-    }
+    }*/
+
+    viewJaulas(m_qntdAnimal, qntdJaulas, indiceSetor, qntdAnimais);
 
     printf("\n\nEm qual jaula este animal permanecera? (Digite a ID)\n-> ");
     scanf("%d", &numero_daJaula);
@@ -141,7 +205,8 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
     setbuf(stdin, NULL);
     printf("\n(?) Qual eh o codigo deste animal?\n-> ");
     fgets(animal[indiceSetor][indice_daJaula][indiceAnimal].codigo, sizeof(animal[indiceSetor][numero_daJaula][indiceAnimal].codigo), stdin);
-    
+
+
     setbuf(stdin, NULL);
 
     printf("\n\n(?) Qual eh o nome deste animal?\n-> ");
@@ -166,7 +231,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 // Funcao para adicionar setores
 void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int nJaulas, int nAnimais, int ***qntdAnimais) {
     int qntdSetor = 0;
-    printf("\n>> ADICIONAR SETOR: \n\nDeseja adicionar quantos setores? ");
+    printf("\n\n\t\t\t===== (+) ADICIONAR SETOR ===== \n\nDeseja adicionar quantos setores? ");
     scanf("%d", &qntdSetor);
 
     // Realoca memória para os nomes dos setores
@@ -232,7 +297,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
 
 
 //Funcao para remover setores
-void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int nJaulas, int ***qntdAnimais) {
+void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int ***qntdAnimais, int *p_setorCadastrado_Ok) {
     
     char select[TAM], nomeSetor_remove[TAM];
     int indiceSetor_remove;
@@ -240,6 +305,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
     printf("\n\n\t\t===== (-) REMOVER UM SETOR =====\n\n(!) ESTEJA CIENTE DE QUE AO REMOVER UM SETOR, VOCE REMOVERA TODAS AS INFORMACOES CONTIDAS NELE.");
     printf("\n\n(?) Voce esta ciente disso?(S ou s para 'Sim' e qualquer digito para 'Nao')\n-> ");
     fgets(select, sizeof(select), stdin);
+
 
     if(tolower(select[0]) != 's') {
         printf("\nN digitado;");
@@ -250,7 +316,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
     viewSetores(*m_Setores, *a_numero_doSetores);
 
     printf("\n\n(?) Qual o nome do setor que deseja remover? (Digite o nome exato)\n-> ");
-    fgets(nomeSetor_remove, sizeof(nomeSetor_remove), stdin);
+    fgets(nomeSetor_remove, sizeof(nomeSetor_remove), stdin);    
 
     for(int setor = 0; setor < (*a_numero_doSetores); setor++) {
         if(strcmp(nomeSetor_remove, (*m_Setores)[setor]) == 0) {
@@ -258,16 +324,12 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
         }
     }
 
-    //Remove o setor
-    free((*m_Setores)[indiceSetor_remove]);
-    free((*qntdAnimais)[indiceSetor_remove]);
+    // Realocar memória para reduzir o tamanho dos arrays em uma unidade
+    *m_Setores = realloc(*m_Setores, (*a_numero_doSetores - 1) * sizeof(char *));
+    *m_Zoo = realloc(*m_Zoo, (*a_numero_doSetores - 1) * sizeof(Info_animal **));
+    *qntdAnimais = realloc(*qntdAnimais, (*a_numero_doSetores - 1) * sizeof(int *));
 
-    for (int jaula = 0; jaula < nJaulas; jaula++) {
-        free((*m_Zoo)[indiceSetor_remove][jaula]);
-    }
-    free((*m_Zoo)[indiceSetor_remove]);
-
-    // Realocar os arrays de setores e quantidades de animais para remover o setor
+    // Mover os elementos restantes para preencher o espaço do setor removido
     for (int i = indiceSetor_remove; i < *a_numero_doSetores - 1; i++) {
         (*m_Setores)[i] = (*m_Setores)[i + 1];
         (*m_Zoo)[i] = (*m_Zoo)[i + 1];
@@ -275,10 +337,149 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
     }
 
 
+
     (*a_numero_doSetores)--;
+
+    if(*a_numero_doSetores == 0) *p_setorCadastrado_Ok = 0;
 
     printf("\n\n(<->) DEU CERTO! SETOR REMOVIDO PERMANENTEMENTE COM EXITO.");
 }
+
+// *NOVA FUNCAO - Esta funcao permite editar as informacoes do animal 
+int editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, int qntdAnimais, int **matriz_qntdAnimais, int numeroJaulas) {
+    int numeroAnimal = -1; // O -1 eh apenas um valor diferente de zero para verificar o retorno da funcao
+    char codAnimal[TAM];
+    char nomeSetor[TAM];
+    int indiceSetor = -1, nJaula, indiceJaula, indiceAnimal;
+
+    printf("\n\n\t\t\t===== (@) EDITAR INFORMACOES DE UM ANIMAL =====\n");
+
+    viewSetores(matrizSetores, numeroSetores);
+
+    do {
+        printf("\n\n(?) Em que setor esta este animal? \n-> ");
+        fgets(nomeSetor, sizeof(nomeSetor), stdin);
+
+        // Retorna o indice do setor, se achar
+        for(int setor = 0; setor < numeroSetores; setor++) {
+            if(strcmp(nomeSetor, matrizSetores[setor]) == 0) {
+                indiceSetor = setor;
+            }
+        
+        }
+
+        if(indiceSetor == -1) {
+            printf("\n\n(!) SETOR NAO ENCONTRADO. DIGITE NOVAMENTE OU DIGITE 'E' PARA SAIR");
+        }
+
+    } while(indiceSetor == -1);
+
+    viewJaulas(matriz_qntdAnimais, numeroJaulas, indiceSetor, qntdAnimais);
+
+    printf("\n\n(?) Em que jaula este animal habita?\n-> ");
+    scanf("%d", &nJaula);
+
+    indiceJaula = nJaula - 1;
+
+    indiceAnimal = matriz_qntdAnimais[indiceSetor][indiceJaula];
+
+    viewAnimais(*mZoo,indiceSetor,indiceJaula,indiceAnimal, qntdAnimais);
+
+    getchar();
+
+    printf("\n\n(?) Qual o codigo do animal que voce editar as informacoes?\n-> ");
+    fgets(codAnimal, sizeof(codAnimal), stdin);
+
+    // Confere se o codigo digitado esta registrado e dá retorno mediante a busca
+    for(int n = 0; n < qntdAnimais; n++) {
+        if(strcmp(codAnimal,(*mZoo)[indiceSetor][indiceJaula][n].codigo) == 0) numeroAnimal = n;
+    }
+
+    /// Se nenhum registro foi encontrado
+    if(numeroAnimal == -1) return 0;
+
+    printf("\n\n(#) ESTAS SAO AS INFORMACOES SALVAS DESTE ANIMAL: \n\nCOD.\t\tNOME\t\tPESO(Kg)\t\tALTURA(cm)\t\tESPECIE");
+
+    // Variaveis para o printf ficar organizado
+    char codigo[TAM];
+    char nome[TAM];
+    char especie[TAM];
+    float peso = (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].peso;
+    float altura = (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].altura;
+    strcpy(codigo, (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].codigo);
+    strcpy(nome, (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].nome);
+    strcpy(especie, (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].especie);
+
+    printf("\n\n%s\t\t%s\t\t%.2f\t\t%.2f\t\t%s", codigo, nome, peso, altura, especie);
+
+    char opcao[TAM_MIN];
+    
+    printf("\n\n(#) ESCOLHA O QUE VOCE DESEJA EDITAR. EH ACEITO APENAS UMA EDICAO POR VEZ");
+    printf("\n\n(A) CODIGO\n(B) NOME\n(C) PESO\n(D) ALTURA\n(E) ESPECIE\n(F) FECHAR MENU DE EDICAO\n\n-> ");
+
+    fgets(opcao, sizeof(opcao), stdin);
+
+    char novoCodigo[TAM];
+    char novoNome[TAM];
+    float novoPeso;
+    float novaAltura;
+    char novaEspecie[TAM];
+
+
+    switch(tolower(opcao[0])) {
+        case 'a':
+            printf("\n\n(?) Qual o novo codigo do animal?\n-> ");
+            fgets(novoCodigo, sizeof(novoCodigo), stdin);
+
+            strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].codigo, novoCodigo);
+            break;
+
+        case 'b':
+            printf("\n\n(?) Qual o novo nome do animal?\n-> ");
+            fgets(novoNome, sizeof(novoNome), stdin);
+
+            strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].nome, novoNome);
+            break;
+        
+        case 'c':
+            printf("\n\n(?) Qual o novo peso do animal?\n-> ");
+            scanf("%f", &novoPeso);
+
+            (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].peso = novoPeso;
+            break;
+        
+        case 'd':
+            printf("\n\n(?) Qual a nova altura do animal?\n-> ");
+            scanf("%f", &novaAltura);
+
+            (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].altura = novaAltura;
+            break;
+        
+        case 'e':
+            printf("\n\n(?) Edite a especie?\n-> ");
+            fgets(novaEspecie, sizeof(novaEspecie), stdin);
+
+            strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].especie, novaEspecie);
+            break;
+
+        default:
+            printf("\n\nErro");
+    }
+
+    return 1;
+
+}
+
+
+// Mostra o menu conforme a acao executada ou aviso dado
+void viewMenu(char textMenu_A[TAM]) {
+    printf("\n\n\n\t\t===== MENU DE OPCOES ====");
+
+    // A variavel textMenu_A altera o texto do menu A caso o user ja cadastrou um setor pela 1a vez ou nao
+    printf("\n\n\n(A) %s\t\t(B) REMOVER UM SETOR\n\n(C) CADASTRAR UM NOVO ANIMAL\t\t(D) EDITAR INFO. DO ANIMAL", textMenu_A);
+    printf("\n\n(E) ANIMAL MAIS PESADO P/ SETOR");
+}
+
 
 int main() {
     Info_animal ***zoologico;
@@ -286,6 +487,17 @@ int main() {
     int numero_doSetores, numero_daJaulas, nAnimais, *p_numero_doSetores;
     int **qntdAnimais;
     p_numero_doSetores = &numero_doSetores;
+
+    // Determina local para usos de acentos e simbolos
+    setlocale(LC_ALL, "pt_BR.UTF-8");
+
+    // Variaveis de mudanca de estado (global)  - (certificam que algumas mudancas so podem ser realizadas mediante outras)
+    int setorCadastrado_ok = 0;
+    int *p_setorCadastrado_Ok = &setorCadastrado_ok;
+    int showMenu = 0;
+    int animalCadastrado_Ok = 0;
+    int *p_animalCadastrado_ok = &animalCadastrado_Ok;
+    int primeiroCadastro_Setor_Ok = 0;
 
     printf("\t\t\t\t===== ZOOFILER ===== \n\n\tBem vindo(a) ao ZOOFILER! Seu programa de gestao para zoologicos\n");
     printf("\n(!) Antes de tudo, precisamos cadastrar algumas informacoes a respeito do zoologico.\nPor favor, responda as isnttrucoes a seguir.");
@@ -330,17 +542,105 @@ int main() {
         }
     }
 
-    printf("\n\n(<->) Deu certo!");
+     printf("\n\n(<->) DEU CERTO! INFORMACOES INICIAIS CONSIDERADAS");
 
-    cadSetor(setores, numero_doSetores);
-    cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
+    // Loop para manter programa em funcionamento
+    while(1) {
+        char opcaoMenu[TAM_MIN];
+
+        // Variaveis de mudanca de estado (interno)  - (certificam que algumas mudancas so podem ser realizadas mediante outras)
+        int menuOk = 0; // Verifica no fim do loop se alguma caractere condiz com algum menu abaixo. Se n condiz, continua 0.
+
+        // *MENU DE OPCOES
+
+        // *Verifica se o user ja cadastrou pelo menos 1 setor pela primeira vez (altera o txt do menu A)
+        //Tambem mostra o menu de acordo com a acao executada (altera o valor de 'showMenu' para 0. Se for 0, o menu aparece)
+        if(showMenu == 0) {
+            if(setorCadastrado_ok == 0) viewMenu("\033[1;33m[!] CADASTRE OS PRIMEIROS SETORES\033[0m");
+            else viewMenu("CADASTRAR NOVO(S) SETOR(ES)");
+        }
+
+        showMenu = 0;
+
+        printf("\n\n\n(#) Digite uma opcao somente dentre os menus acima\n-> ");
+        setbuf(stdin,NULL);
+        fgets(opcaoMenu, sizeof(opcaoMenu), stdin);
+
+
+        // Cadastrar um novo setor
+        if(tolower(opcaoMenu[0]) == 'a') {
+            menuOk = 1;
+
+            if(primeiroCadastro_Setor_Ok == 0) {
+                cadSetor(setores, numero_doSetores);
+                primeiroCadastro_Setor_Ok = 1;
+            } else addSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, nAnimais, &qntdAnimais);
+
+            setorCadastrado_ok = 1;
+            showMenu = 0;
+        }
+
+        // Remover um setor
+        if(tolower(opcaoMenu[0]) == 'b') {
+            menuOk = 1;
+
+            if(setorCadastrado_ok == 0) {
+                printf("\n\n(!) ACAO NEGADA - < NAO E POSSIVEL REMOVER UM SETOR SEM ANTES CADASTRAR UM >");
+                showMenu = 1;
+            }
+            else {
+                removeSetor(&setores, p_numero_doSetores, &zoologico, &qntdAnimais, p_setorCadastrado_Ok);
+                showMenu = 0;
+            }
+        }
+
+        // Cadastrar um novo animal
+        if(tolower(opcaoMenu[0]) == 'c') {
+            menuOk = 1;
+
+            cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+            animalCadastrado_Ok = 1;
+            showMenu = 0;
+        }
+
+        // Editar informacoes do animal
+        if(tolower(opcaoMenu[0]) == 'd') {
+            menuOk = 1;
+
+            if(animalCadastrado_Ok == 0) {
+                printf("\n\n(!) ACAO NEGADA - < NAO E POSSIVEL REMOVER UM SETOR SEM ANTES CADASTRAR UM >");
+                showMenu = 1;
+            }
+            else {
+
+                editAnimal(&zoologico, setores, numero_doSetores, nAnimais, qntdAnimais, numero_daJaulas);
+            }
+        }
+
+        if(tolower(opcaoMenu[0]) == 'e') {
+            menuOk = 1;
+            animal_maisPesado(setores, zoologico, numero_doSetores, numero_daJaulas, nAnimais, qntdAnimais);
+        }
+
+        // Se o caractere digitado nao entrou em nenhum menu
+        if(menuOk == 0) {
+            printf("\n\n\n(!) VOCE DIGITOU UM CARACTERE INVALIDO OU FORA DOS PARAMETROS.");
+            showMenu = 1;
+        }
+    }
+
+    
+
+    // cadSetor(setores, numero_doSetores);
     // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    addSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, nAnimais, &qntdAnimais);
-    cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
-    cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    // editAnimal(&zoologico, 1, 2, "123", nAnimais);
+    // removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
+    // // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    // addSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, nAnimais, &qntdAnimais);
+    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+    // removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
+    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
 
     printf("\nChegou aqui");
 
