@@ -133,7 +133,8 @@ void viewSetores(char **setorView, int n_SetoresView) {
 
 // Visualiza as jaulas daquele setor
 void viewJaulas(int **m_qntdAnimal,int qntdJaulas, int indiceSetor, int qntdAnimais) {
-    printf("\n\t\t=== (#) LISTA DE JAULAS DESTE SETOR' ===\n\nID\t\tQUANTIDADE DE ANIMAIS\t\tDISPONIBILIDADE\n");
+    confirmacao("\n\t\t=== (#) LISTA DE JAULAS DESTE SETOR ===");
+    printf("\n\t\t\n\nID\t\tQUANTIDADE DE ANIMAIS\t\tDISPONIBILIDADE\n");
     char statusDisponibilidade[TAM];
 
     for(int jaula = 0; jaula < qntdJaulas; jaula++) {
