@@ -26,7 +26,7 @@ void erroCritico(char *msg) {
     printf("\n\n\033[1;31m%s\033[0m", msg);
 }
 
-void exito(char *msg) {
+void sucesso(char *msg) {
     printf("\n\n\033[1;32m%s\033[0m", msg);
 }
 
@@ -35,7 +35,7 @@ void confirmacao(char *msg) {
 }
 
 void destaque(char *msg) {
-    printf("\n\n\033[1;35m%s\033[0m", msg);
+    printf("\n\n\033[1;36m%s\033[0m", msg);
 }
 
 
@@ -88,18 +88,42 @@ void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdS
 
 // Funcao para cadastrar os setores
 void cadSetor(char **c_Setores, int f_numero_doSetores) {
-    printf("\n\n\t\t=== (+) CADASTRAR SETORES PELA PRIMEIRA VEZ ===\n");
-
+    confirmacao("\n\n\t\t=== (+) CADASTRAR SETORES PELA PRIMEIRA VEZ ===\n");
+    alerta("(!) NAO EH PERMITIDO NUMEROS, CARACTERES ESPECIAIS OU NOMES DE SETORES JA CADASTRADOS\n");
+    
     for(int i = 0; i < f_numero_doSetores; i++) {
-        setbuf(stdin, NULL);
         printf("\n(#) Nome do %do setor: ", i + 1);
-        fgets(c_Setores[i], TAM, stdin);
+        scanf(" %[^\n]", c_Setores[i]); // Usamos %[^\n] para capturar toda a linha até a quebra de linha
+        
+        // Verificar se o nome do setor contém apenas letras e não está vazio
+        int j = 0;
+        while (c_Setores[i][j] != '\0') {
+            if (!isalpha(c_Setores[i][j])) {
+                alerta("(!) NOME INVALIDO. NAO EH PERMITIDO ESPACOS EM BRANCO, NUMEROS OU SIMBOLOS\n");
+                printf("\n(#) Nome do %do setor: ", i + 1);
+                scanf(" %[^\n]", c_Setores[i]);
+                j = -1; // Reiniciamos a verificação
+            }
+            j++;
+        }
+        
+        //Verificar se esse nome ja foi cadastrado
+        for(int k = 0; k < i; k++) {
+            if(strcmp(c_Setores[i], c_Setores[k]) == 0) {
+                alerta("(!) VOCE JA INSERIU ESTE NOME. TENTE OUTRO.\n");
+                i--;
+                break;
+            }
+        }
     }
+
+    sucesso("\n(<->) SETORES CADASTRADOS COM SUCESSO!");
 }
+
 
 //Funcao para mostrar setores
 void viewSetores(char **setorView, int n_SetoresView) {
-    printf("\n\t\t ==== (#) LISTAGEM DE SETORES ====");
+    confirmacao("\t\t ==== (#) LISTAGEM DE SETORES ====");
     printf("\n\n# \t SETORES \n");
 
     for(int i = 0; i < n_SetoresView; i++) {
@@ -501,7 +525,7 @@ void viewMenu(char textMenu_A[TAM]) {
 
     // A variavel textMenu_A altera o texto do menu A caso o user ja cadastrou um setor pela 1a vez ou nao
     printf("\n\n\n(A) %s\t\t(B) REMOVER UM SETOR\n\n(C) CADASTRAR UM NOVO ANIMAL\t\t(D) EDITAR INFO. DO ANIMAL", textMenu_A);
-    printf("\n\n(E) ANIMAL MAIS PESADO P/ SETOR");
+    printf("\n\n(E) ANIMAL MAIS PESADO P/ SETOR\n\n(F) LISTA DE SETORES");
 }
 
 
@@ -645,10 +669,18 @@ int main() {
             }
         }
 
+        // Animal mais pesado por setor
         if(tolower(opcaoMenu[0]) == 'e') {
             menuOk = 1;
             animal_maisPesado(setores, zoologico, numero_doSetores, numero_daJaulas, nAnimais);
         }
+
+        if(tolower(opcaoMenu[0]) == 'f') {
+            menuOk = 1;
+            viewSetores(setores, numero_doSetores);
+        }
+
+        
 
         // Se o caractere digitado nao entrou em nenhum menu
         if(menuOk == 0) {
