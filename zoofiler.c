@@ -148,11 +148,12 @@ void viewJaulas(int **m_qntdAnimal,int qntdJaulas, int indiceSetor, int qntdAnim
 
 // Funcao para mostrar os animais de uma jaula
 void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula, int qntdAnimais, int qntd_MAX_Animais) {
-    printf("\n\n\t\t==== (#) ANIMAIS REGISTRADOS NESSA JAULA ====\n\n#\t\tCOD.\t\tNOME\t\tALTURA(cm)\t\tPESO(Kg)\t\tESPECIE\n");
+    confirmacao("\t\t==== (#) ANIMAIS REGISTRADOS NESSA JAULA ====");
+    printf("\n\n\n\n#\t\tCOD.\t\tNOME\t\tALTURA(cm)\t\tPESO(Kg)\t\tESPECIE\n");
 
     // Verificar se numero_doSetor e numero_daJaula estão dentro dos limites
     if (qntdAnimais == 0) {
-        printf("\n(!) Ainda nao ha animais cadastrados nessa jaula");
+        alerta("(!) Ainda nao ha animais cadastrados nessa jaula");
     } else {
         for (int animal = 0; animal < qntdAnimais; animal++) {
             // Variáveis para melhor organização
