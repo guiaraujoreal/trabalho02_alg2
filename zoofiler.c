@@ -16,9 +16,33 @@ typedef struct {
     char especie[TAM];
 } Info_animal;
 
+// *FUNCOES PARA EXIBIR CORES DE ACORDO COM O TIPO DA MENSAGEM
+
+void alerta(char *msg) {
+    printf("\n\n\033[1;33m%s\033[0m", msg);
+}
+
+void erroCritico(char *msg) {
+    printf("\n\n\033[1;31m%s\033[0m", msg);
+}
+
+void exito(char *msg) {
+    printf("\n\n\033[1;32m%s\033[0m", msg);
+}
+
+void confirmacao(char *msg) {
+    printf("\n\n\033[1;34m%s\033[0m", msg);
+}
+
+void destaque(char *msg) {
+    printf("\n\n\033[1;35m%s\033[0m", msg);
+}
+
+
+// *FUNCOES DO PROGRAMA
 
 // Funcao que verifica o maior peso por setor
-void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdSetores, int qntdJaulas, int qntdAnimais, int **matriz_qntdAnimais) {
+void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdSetores, int qntdJaulas, int qntdAnimais) {
     printf("\n\n\t\t===== (#) ANIMAIS MAIS PESADOS POR SETOR =====");
     printf("\n\n#\t\tSETOR\t\tANIMAL\t\tPESO(Kg)");
 
@@ -499,7 +523,9 @@ int main() {
     int *p_animalCadastrado_ok = &animalCadastrado_Ok;
     int primeiroCadastro_Setor_Ok = 0;
 
-    printf("\t\t\t\t===== ZOOFILER ===== \n\n\tBem vindo(a) ao ZOOFILER! Seu programa de gestao para zoologicos\n");
+    destaque("\t\t\t\t===== ZOOFILER =====");
+
+    printf("\n\n\tBem vindo(a) ao ZOOFILER! Seu programa de gestao para zoologicos\n");
     printf("\n(!) Antes de tudo, precisamos cadastrar algumas informacoes a respeito do zoologico.\nPor favor, responda as isnttrucoes a seguir.");
 
     printf("\n\n(+) Digite o numero de setores: ");
@@ -547,6 +573,8 @@ int main() {
     // Loop para manter programa em funcionamento
     while(1) {
         char opcaoMenu[TAM_MIN];
+
+        alerta("Ola meus calabrezos");
 
         // Variaveis de mudanca de estado (interno)  - (certificam que algumas mudancas so podem ser realizadas mediante outras)
         int menuOk = 0; // Verifica no fim do loop se alguma caractere condiz com algum menu abaixo. Se n condiz, continua 0.
@@ -619,7 +647,7 @@ int main() {
 
         if(tolower(opcaoMenu[0]) == 'e') {
             menuOk = 1;
-            animal_maisPesado(setores, zoologico, numero_doSetores, numero_daJaulas, nAnimais, qntdAnimais);
+            animal_maisPesado(setores, zoologico, numero_doSetores, numero_daJaulas, nAnimais);
         }
 
         // Se o caractere digitado nao entrou em nenhum menu
