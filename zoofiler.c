@@ -197,7 +197,7 @@ void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula
 
         if(qntdAnimais < qntd_MAX_Animais) {
             int restanteAnimais = qntd_MAX_Animais - qntdAnimais;
-            printf("\n\n(%d %s)",restanteAnimais, (restanteAnimais == 1) ? "vaga disponivel" : "vagas disponiveis");
+            printf("\n\n(\033[1;33m%d %s\033[0m)",restanteAnimais, (restanteAnimais == 1) ? "vaga disponivel" : "vagas disponiveis");
         } 
     }
 }
