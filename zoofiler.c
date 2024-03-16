@@ -254,12 +254,17 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
         //Recupera o indice do setor digitado
         for(int setor = 0; setor < qntdSetores; setor++) {
 
-            // Remove a quebra de linha
-            for(int i = 0; set[i] != '\0'; i++) {
-                if(set[i] == '\n') {
-                    set[i] = '\0';
-                }
+            // // Remove a quebra de linha
+            // for(int i = 0; set[i] != '\0'; i++) {
+            //     if(set[i] == '\n') {
+            //         set[i] = '\0';
+            //     }
+            // }
+
+            if(set[strlen(set) - 1] == '\n') {
+                set[strlen(set) - 1] = '\0';
             }
+
             if(strcmp(matrizSetores[setor], set) == 0) {
                 indiceSetor = setor;
                 setorEncontrado = 1;
@@ -485,14 +490,14 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
         }
 
         // Verifica se ha uma letra
-        for (int i = 0; peso[i] != '\0'; i++) {
-            if (!isdigit(peso[i])) {
-                if (peso[i] == '.' && !pontoDecimal) {
+        for (int i = 0; altura[i] != '\0'; i++) {
+            if (!isdigit(altura[i])) {
+                if (altura[i] == '.' && !pontoDecimal) {
                     // Se encontrou um ponto decimal
                     pontoDecimal = 1;
                 } else {
                     // Outro caractere que nao eh digito ou mais de um ponto decimal
-                    printf("(x) DIGITE UM VALOR NUMERICO VALIDO!\n\n");
+                    erro("(x) DIGITE UM VALOR NUMERICO VALIDO!\n\n");
                     condicaoOk = 0;
                     break;
                 }
