@@ -149,7 +149,7 @@ void viewJaulas(int **m_qntdAnimal,int qntdJaulas, int indiceSetor, int qntdAnim
 // Funcao para mostrar os animais de uma jaula
 void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula, int qntdAnimais, int qntd_MAX_Animais) {
     confirmacao("\t\t==== (#) ANIMAIS REGISTRADOS NESSA JAULA ====");
-    printf("\n\n\n\n#\t\tCOD.\t\tNOME\t\tALTURA(cm)\t\tPESO(Kg)\t\tESPECIE\n");
+    printf("\n\n\n\n#\t\tCOD.\t\tNOME\t\tALTURA(cm)\tPESO(Kg)\t\t\tESPECIE\n");
 
     // Verificar se numero_doSetor e numero_daJaula estão dentro dos limites
     if (qntdAnimais == 0) {
@@ -306,7 +306,8 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
     // Casos de erro para codigo
     do {
-        int codicaoOk = 1;
+        int condicaoOk = 1; // Flag da condicao se der tudo certo
+        int codigoExistente = 0; // Flag que verifica se o codigo ja existe
 
         setbuf(stdin, NULL);
         fgets(codigo, sizeof(codigo), stdin);
@@ -314,10 +315,29 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
         if(codigo[0] == ' ' || codigo[0] == '\0') {
             erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO CODIGO. DIGITE UM CODIGO VALIDO!");
             printf("\n\n-> ");
-            codicaoOk = 0;
+            condicaoOk = 0;
         }
 
-        if(codicaoOk) {
+
+        if(condicaoOk) {
+            // Verifica se esse codigo ja pertence a outro animal
+            for(int setor = 0; setor <  qntdSetores; setor++) {
+                for(int jaula = 0; jaula <  qntdJaulas; jaula++) {
+                    for(int animais = 0; animais < qntdAnimais; animais++) {
+                        if(strcmp(animal[setor][jaula][animais].codigo, codigo) == 0) {
+                            codigoExistente = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(codigoExistente) {
+                erro("(x) ESTE CODIGO JA EXISTE. DIGITE UM NOVO!");
+                printf("\n\n-> ");
+                continue;
+            } 
+
             strcpy(animal[indiceSetor][indice_daJaula][indiceAnimal].codigo, codigo);
             break;
         }
@@ -331,7 +351,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
     // Casos de erro para nome
     do {
-        int condicaoOk = 1;
+        int condicaoOk = 1; // Flag da condicao se der tudo certo
 
         setbuf(stdin, NULL);
         fgets(nome, sizeof(nome), stdin);
@@ -368,7 +388,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
     // Casos de erro para peso
     do {
-        int condicaoOk = 1;
+        int condicaoOk = 1; // Flag da condicao se der tudo certo
         int pontoDecimal = 0; // A entrada pode haver o '.', em casos de valores decimais. Vamos incluir na condicao para que seja aceito
 
         setbuf(stdin, NULL);
@@ -412,7 +432,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
     
     //Casos de erro para altura
     do {
-        int condicaoOk = 1;
+        int condicaoOk = 1; // Flag da condicao se der tudo certo
         int pontoDecimal = 0; // A entrada pode haver o '.', em casos de valores decimais. Vamos incluir na condicao para que seja aceito
 
         setbuf(stdin, NULL);
@@ -458,7 +478,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
     // Casos de erro para especie
     do {
-        int condicaoOk = 1;
+        int condicaoOk = 1; // Flag da condicao se der tudo certo
 
         setbuf(stdin, NULL);
         fgets(especie, sizeof(especie), stdin);
