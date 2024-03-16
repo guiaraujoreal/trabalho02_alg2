@@ -89,27 +89,59 @@ void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdS
 // Funcao para cadastrar os setores
 void cadSetor(char **c_Setores, int f_numero_doSetores) {
     confirmacao("\n\n\t\t=== (+) CADASTRAR SETORES PELA PRIMEIRA VEZ ===\n");
-    alerta("(!) NAO EH PERMITIDO NUMEROS, CARACTERES ESPECIAIS OU NOMES DE SETORES JA CADASTRADOS\n");
+    alerta("(!) NAO EH PERMITIDO NUMEROS, CARACTERES ESPECIAIS OU NOMES DE SETORES JA CADASTRADOS");
+    alerta("(!) CUIDADO PARA NAO ADICIONAR ESPACOS EXTRAS AO FIM DA LINHA. ISSO PODE INTERFERIR NA BUSCA DOS SETORES\n");
     
     for(int i = 0; i < f_numero_doSetores; i++) {
         printf("\n(#) Nome do %do setor: ", i + 1);
-        scanf(" %[^\n]", c_Setores[i]); // Usamos %[^\n] para capturar toda a linha até a quebra de linha
+        // scanf(" %[^\n]", c_Setores[i]); // Usamos %[^\n] para capturar toda a linha até a quebra de linha
         
-        // Verificar se o nome do setor contém apenas letras e não está vazio
-        int j = 0;
-        while (c_Setores[i][j] != '\0') {
-            if (!isalpha(c_Setores[i][j])) {
-                alerta("(!) NOME INVALIDO. NAO EH PERMITIDO ESPACOS EM BRANCO, NUMEROS OU SIMBOLOS\n");
-                printf("\n(#) Nome do %do setor: ", i + 1);
-                scanf(" %[^\n]", c_Setores[i]);
-                j = -1; // Reiniciamos a verificação
+        // // Verificar se o nome do setor contém apenas letras e não está vazio
+        // int j = 0;
+        // while (c_Setores[i][j] != '\0') {
+        //     if (!isalpha(c_Setores[i][j])) {
+        //         alerta("(!) NOME INVALIDO. NAO EH PERMITIDO ESPACOS EM BRANCO, NUMEROS OU SIMBOLOS\n");
+        //         printf("\n(#) Nome do %do setor: ", i + 1);
+        //         scanf(" %[^\n]", c_Setores[i]);
+        //         j = -1; // Reiniciamos a verificação
+        //     }
+        //     j++;
+        // }
+
+        do {
+            int condicaoOk = 1; // Flag da condicao se der tudo certo
+
+            setbuf(stdin, NULL);
+            fgets(c_Setores[i], TAM, stdin);
+
+            // Remove o caractere de nova linha, se houver
+            if(c_Setores[i][strlen(c_Setores[i]) - 1] == '\n') {
+                c_Setores[i][strlen(c_Setores[i]) - 1] = '\0';
             }
-            j++;
-        }
-        
+
+            if(c_Setores[i][0] == ' ' || c_Setores[i][0] == '\0') {
+                erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME DO SETOR. DIGITE UM NOME VALIDO!");
+                printf("\n\n-> ");
+                continue;
+            }
+
+            // Verifica se tem um numero no nome
+            for(int k = 0; c_Setores[i][k] != '\0'; k++) {
+                if(isdigit(c_Setores[i][k])) {
+                    erro("(x) NAO EH PERMITIDO NUMEROS NO NOME. ESCREVA UM NOME VALIDO!");
+                    printf("\n\n-> ");
+                    condicaoOk = 0;
+                    break;
+                }
+            }
+
+            if(condicaoOk) break;
+
+        } while(1);
+
         //Verificar se esse nome ja foi cadastrado
-        for(int k = 0; k < i; k++) {
-            if(strcmp(c_Setores[i], c_Setores[k]) == 0) {
+        for(int p = 0; p < i; p++) {
+            if(strcmp(c_Setores[i], c_Setores[p]) == 0) {
                 alerta("(!) VOCE JA INSERIU ESTE NOME. TENTE OUTRO.\n");
                 i--;
                 break;
