@@ -244,6 +244,8 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
     } while(setorEncontrado == 0);
 
+    printf("\n\033[1;32m(<->) Setor selecionado exito.\033[0m"); // O \033 deixa a confirmacao verde
+
 
     viewJaulas(m_qntdAnimal, qntdJaulas, indiceSetor, qntdAnimais);
 
@@ -263,7 +265,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
             i++;
         }
 
-        // Se o loop terminou e input[i] é '\0', então todos os caracteres são dígitos
+        // Se o loop terminou e input[i] eh '\0', então todos os caracteres são dígitos
         if (input[i] == '\0') {
             numero_daJaula = atoi(input); // Converter a string para um número inteiro
             if (numero_daJaula <= 0 || numero_daJaula > qntdJaulas) {
@@ -280,7 +282,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
     indiceAnimal = m_qntdAnimal[indiceSetor][indice_daJaula];
 
-    printf("\n(<->) Jaula %d selecionada.", numero_daJaula);
+    printf("\n\033[1;32m(<->) Jaula %d selecionada.\033[0m", numero_daJaula); // O \033 deixa a confirmacao verde
 
     //Mostra os animais ja cadastrado na jaula
     viewAnimais(animal,indiceSetor,indice_daJaula,indiceAnimal, qntdAnimais);
