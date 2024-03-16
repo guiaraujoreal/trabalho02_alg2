@@ -555,6 +555,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
     // Casos de erro para qntdSetor
     do {
         int situacaoOk = 1; // Flag q verifica a situacao dos casos de erro
+
         setbuf(stdin, NULL);
 
         fgets(entradaSetor, sizeof(entradaSetor), stdin);
@@ -630,6 +631,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
         // Casos de erro para o nome do setor
         do {
             int condicaoOk = 1; // Flag da condicao se der tudo certo
+            int setorEncontrado = 0; // Flag que verifica se o setor digitado foi encontrado
 
             setbuf(stdin, NULL);
             fgets((*m_Setores)[i], TAM, stdin);
@@ -657,7 +659,22 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
                 }
             }
 
-            if(condicaoOk) break;
+            if(condicaoOk) {
+                for(int setor = 0; setor < *(a_numero_doSetores); setor++) {
+                    if(strcmp((*m_Setores)[i], *(m_Setores)[setor]) == 0) {
+                        setorEncontrado = 1;
+                        break;
+                    }
+                }
+
+                if(setorEncontrado) {
+                    erro("(x) JA EXISTE UM SETOR COM ESTE NOME. TENTE OUTRO.");
+                    printf("\n\n-> ");
+                    continue;
+                }
+
+                break;
+            }
 
         } while(1);
 
