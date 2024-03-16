@@ -90,23 +90,11 @@ void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdS
 void cadSetor(char **c_Setores, int f_numero_doSetores) {
     confirmacao("\n\n\t\t=== (+) CADASTRAR SETORES PELA PRIMEIRA VEZ ===\n");
     alerta("(!) NAO EH PERMITIDO NUMEROS, CARACTERES ESPECIAIS OU NOMES DE SETORES JA CADASTRADOS");
-    alerta("(!) CUIDADO PARA NAO ADICIONAR ESPACOS EXTRAS AO FIM DA LINHA. ISSO PODE INTERFERIR NA BUSCA DOS SETORES\n");
+    alerta("(!) CUIDADO PARA NAO ADICIONAR ESPACOS EXTRAS AO FIM DA LINHA. ISSO PODE INTERFERIR NA BUSCA DOS SETORES");
+    alerta("(!) NAO EH PERMITIDO SETORES COM MESMOS NOMES\n");
     
     for(int i = 0; i < f_numero_doSetores; i++) {
         printf("\n(#) Nome do %do setor: ", i + 1);
-        // scanf(" %[^\n]", c_Setores[i]); // Usamos %[^\n] para capturar toda a linha até a quebra de linha
-        
-        // // Verificar se o nome do setor contém apenas letras e não está vazio
-        // int j = 0;
-        // while (c_Setores[i][j] != '\0') {
-        //     if (!isalpha(c_Setores[i][j])) {
-        //         alerta("(!) NOME INVALIDO. NAO EH PERMITIDO ESPACOS EM BRANCO, NUMEROS OU SIMBOLOS\n");
-        //         printf("\n(#) Nome do %do setor: ", i + 1);
-        //         scanf(" %[^\n]", c_Setores[i]);
-        //         j = -1; // Reiniciamos a verificação
-        //     }
-        //     j++;
-        // }
 
         do {
             int condicaoOk = 1; // Flag da condicao se der tudo certo
@@ -281,7 +269,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
     } while(setorEncontrado == 0);
 
-    printf("\n\033[1;32m(<->) Setor selecionado exito.\033[0m"); // O \033 deixa a confirmacao verde
+    printf("\n\033[1;32m(<->) Setor selecionado com exito.\033[0m"); // O \033 deixa a confirmacao verde
 
 
     viewJaulas(m_qntdAnimal, qntdJaulas, indiceSetor, qntdAnimais);
@@ -558,8 +546,56 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 // Funcao para adicionar setores
 void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int nJaulas, int nAnimais, int ***qntdAnimais) {
     int qntdSetor = 0;
-    printf("\n\n\t\t\t===== (+) ADICIONAR SETOR ===== \n\nDeseja adicionar quantos setores? ");
-    scanf("%d", &qntdSetor);
+    char entradaSetor[TAM]; // Capturamos a entrada da quantia de setor como char para verificar se uma letra ou caractere foi digitado no lugar de um int
+
+    confirmacao("\n\t\t\t===== (+) ADICIONAR SETOR ===== ");
+    alerta("(!) LEMBRE-SE QUE O NOME DO SETOR EH UNICO E NAO PODE SER REPETIDO.\n");
+    printf("\n\n(?) Deseja adicionar quantos setores? ");
+
+    // Casos de erro para qntdSetor
+    do {
+        int situacaoOk = 1; // Flag q verifica a situacao dos casos de erro
+        setbuf(stdin, NULL);
+
+        fgets(entradaSetor, sizeof(entradaSetor), stdin);
+
+        // Remove quebra de linha
+        if(entradaSetor[strlen(entradaSetor) - 1] == '\n') {
+            entradaSetor[strlen(entradaSetor) - 1] = '\0';
+        }
+
+        // Evita espacos vazios
+        if(entradaSetor[0] == ' ' || entradaSetor[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU LINHAS VAZIAS. DIGITE UM VALOR VALIDO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        // Verifica se a entrada eh um numero
+        for(int i = 0; entradaSetor[i] != '\0'; i++){
+            if(!isdigit(entradaSetor[i])) {
+                situacaoOk = 0;
+                break;
+            }
+        }
+        
+
+        if(!situacaoOk) {
+            erro("(x) VOCE DIGITOU UM VALOR INVALIDO. TENTE NOVAMENTE!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        qntdSetor = atoi(entradaSetor);
+
+        if(qntdSetor <= 0) {
+            alerta("(!) ADICIONE PELO MENOS 1 SETOR! (OU DIGITE 'X' PARA SAIR)");
+            printf("\n\n-> ");
+            continue;
+        } else break;
+
+    } while(1);
+
 
     // Realoca memória para os nomes dos setores
     *m_Setores = (char **)realloc(*m_Setores, ((*a_numero_doSetores) + qntdSetor) * sizeof(char *));
@@ -582,7 +618,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
 
     // Nome dos novos setores
     for (int i = (*a_numero_doSetores); i < (*a_numero_doSetores) + qntdSetor; i++) {
-        printf("\nQual o nome do %do setor?\n-> ", i + 1);
+        printf("\n(?) Qual o nome do %do setor?\n-> ", i + 1);
         setbuf(stdin, NULL);
 
         // Aloca memória para o nome do setor
@@ -591,7 +627,39 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
             exit(1);
         }
 
-        fgets((*m_Setores)[i], TAM, stdin);
+        // Casos de erro para o nome do setor
+        do {
+            int condicaoOk = 1; // Flag da condicao se der tudo certo
+
+            setbuf(stdin, NULL);
+            fgets((*m_Setores)[i], TAM, stdin);
+
+            // Remove o caractere de nova linha, se houver
+            for(int z = 0;  (*m_Setores)[i][z] != '\0'; z++) {
+                if((*m_Setores)[i][z] == '\n') {
+                    (*m_Setores)[i][z] = '\0';
+                }
+            }
+
+            if((*m_Setores)[i][0] == ' ' || (*m_Setores)[i][0] == '\0') {
+                erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME DO SETOR. DIGITE UM NOME VALIDO!");
+                printf("\n\n-> ");
+                continue;
+            }
+
+            // Verifica se tem um numero no nome
+            for(int y = 0; (*m_Setores)[i][y] != '\0'; y++) {
+                if(isdigit((*m_Setores)[i][y])) {
+                    erro("(x) NAO EH PERMITIDO NUMEROS NO NOME. ESCREVA UM NOME VALIDO!");
+                    printf("\n\n-> ");
+                    condicaoOk = 0;
+                    break;
+                }
+            }
+
+            if(condicaoOk) break;
+
+        } while(1);
 
         // Aloca memória para as informações dos animais no setor
         (*m_Zoo)[i] = (Info_animal **)malloc(nJaulas * sizeof(Info_animal *));
