@@ -697,13 +697,14 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
     char select[TAM], nomeSetor_remove[TAM];
     int indiceSetor_remove;
 
-    printf("\n\n\t\t===== (-) REMOVER UM SETOR =====\n\n(!) ESTEJA CIENTE DE QUE AO REMOVER UM SETOR, VOCE REMOVERA TODAS AS INFORMACOES CONTIDAS NELE.");
+    erro("\n\t\t===== (-) REMOVER UM SETOR =====\n\n");
+    alerta("\n(!) ESTEJA CIENTE DE QUE AO REMOVER UM SETOR, VOCE REMOVERA TODAS AS INFORMACOES CONTIDAS NELE.");
     printf("\n\n(?) Voce esta ciente disso?(S ou s para 'Sim' e qualquer digito para 'Nao')\n-> ");
     fgets(select, sizeof(select), stdin);
 
 
     if(tolower(select[0]) != 's') {
-        printf("\nN digitado;");
+        destaque("(#) VOCE ESCOLHEU SAIR");
         return; //Encerra a funcao
     }
 
@@ -711,7 +712,55 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
     viewSetores(*m_Setores, *a_numero_doSetores);
 
     printf("\n\n(?) Qual o nome do setor que deseja remover? (Digite o nome exato)\n-> ");
-    fgets(nomeSetor_remove, sizeof(nomeSetor_remove), stdin);    
+
+    // Casos de erro para nomeSetor_remove
+    do {
+            int condicaoOk = 1; // Flag da condicao se der tudo certo
+            int setorEncontrado = 0; // Flag que verifica se o setor digitado foi encontrado
+
+            setbuf(stdin, NULL);
+            fgets(nomeSetor_remove, sizeof(nomeSetor_remove), stdin);
+
+            // Remove o caractere de nova linha, se houver
+            if(nomeSetor_remove[strlen(nomeSetor_remove) - 1] == '\n') {
+                nomeSetor_remove[strlen(nomeSetor_remove) - 1] = '\0';
+            }
+
+            if(nomeSetor_remove[0] == ' ' || nomeSetor_remove[0] == '\0') {
+                erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME DO SETOR. DIGITE UM NOME VALIDO!");
+                printf("\n\n-> ");
+                continue;
+            }
+
+            // Verifica se tem um numero no nome
+            for(int y = 0; nomeSetor_remove[y] != '\0'; y++) {
+                if(isdigit(nomeSetor_remove[y])) {
+                    erro("(x) NAO EH PERMITIDO NUMEROS NO NOME. ESCREVA UM NOME VALIDO!");
+                    printf("\n\n-> ");
+                    condicaoOk = 0;
+                    break;
+                }
+            }
+
+            if(condicaoOk) {
+
+                for(int setor = 0; setor < *(a_numero_doSetores); setor++) {
+                    if(strcmp(nomeSetor_remove, *(m_Setores)[setor]) == 0) {
+                        setorEncontrado = 1;
+                        break;
+                    }
+                }
+
+                if(!setorEncontrado) {
+                    erro("(x) SETOR NAO ENCONTRADO. TENTE OUTRO");
+                    printf("\n\n-> ");
+                    continue;
+                }
+
+                break;
+            }
+
+    } while(1);
 
     for(int setor = 0; setor < (*a_numero_doSetores); setor++) {
         if(strcmp(nomeSetor_remove, (*m_Setores)[setor]) == 0) {
@@ -737,7 +786,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
 
     if(*a_numero_doSetores == 0) *p_setorCadastrado_Ok = 0;
 
-    printf("\n\n(<->) DEU CERTO! SETOR REMOVIDO PERMANENTEMENTE COM EXITO.");
+    sucesso("(<->) DEU CERTO! SETOR REMOVIDO PERMANENTEMENTE COM EXITO.");
 }
 
 // *NOVA FUNCAO - Esta funcao permite editar as informacoes do animal 
