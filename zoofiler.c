@@ -91,7 +91,6 @@ void cadSetor(char **c_Setores, int f_numero_doSetores) {
     confirmacao("\n\n\t\t=== (+) CADASTRAR SETORES PELA PRIMEIRA VEZ ===\n");
     alerta("(!) NAO EH PERMITIDO NUMEROS, CARACTERES ESPECIAIS OU NOMES DE SETORES JA CADASTRADOS");
     alerta("(!) CUIDADO PARA NAO ADICIONAR ESPACOS EXTRAS AO FIM DA LINHA. ISSO PODE INTERFERIR NA BUSCA DOS SETORES");
-    alerta("(!) NAO EH PERMITIDO SETORES COM MESMOS NOMES\n");
     
     for(int i = 0; i < f_numero_doSetores; i++) {
         printf("\n(#) Nome do %do setor: ", i + 1);
@@ -169,7 +168,6 @@ void viewJaulas(int **m_qntdAnimal,int qntdJaulas, int indiceSetor, int qntdAnim
 // Funcao para mostrar os animais de uma jaula
 void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula, int qntdAnimais, int qntd_MAX_Animais) {
     confirmacao("\t\t==== (#) ANIMAIS REGISTRADOS NESSA JAULA ====");
-    printf("\n\n\n\n#\t\tCOD.\t\tNOME\t\tALTURA(cm)\t\ttPESO(Kg)\t\tESPECIE\n");
 
     // Verificar se numero_doSetor e numero_daJaula estão dentro dos limites
     if (qntdAnimais == 0) {
@@ -211,7 +209,14 @@ void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula
                 especie[especie_len - 1] = '\0';
             }
 
-            printf("\n%d\t\t%s\t\t%s\t\t%.2f\t\t\t%.2f\t\t%s", animal + 1, codigo, nome, altura, peso, especie);
+            //printf("\n%d\t\t%s\t\t%s\t\t%.2f\t\t\t%.2f\t\t%s", animal + 1, codigo, nome, altura, peso, especie);
+
+            printf("\n\n\033[1;34m%d\033[0m", animal + 1);
+            printf("\n\t\033[1;34mCOD. ->\033[0m"); printf(" %s", codigo);
+            printf("\n\t\033[1;34mNOME ->\033[0m"); printf(" %s", nome);
+            printf("\n\t\033[1;34mALTURA ->\033[0m"); printf(" %.2f cm", altura);
+            printf("\n\t\033[1;34mPESO ->\033[0m"); printf(" %.2f kg", peso);
+            printf("\n\t\033[1;34mESPECIE ->\033[0m"); printf(" %s", especie);
         }
 
 
@@ -1302,7 +1307,7 @@ int main() {
     // Determina local para usos de acentos e simbolos
     setlocale(LC_ALL, "pt_BR.UTF-8");
 
-    // Variaveis de mudanca de estado (global)  - (certificam que algumas mudancas so podem ser realizadas mediante outras)
+    // FLAGS (GLOBAL) (Variaveis de mudanca de estado)  - (certificam que algumas mudancas so podem ser realizadas mediante outras)
     int setorCadastrado_ok = 0;
     int *p_setorCadastrado_Ok = &setorCadastrado_ok;
     int showMenu = 0;
@@ -1336,7 +1341,7 @@ int main() {
         // Verifica se eh uma letra
         for (int i = 0; numero_doSetores_char[i] != '\0'; i++) {
             if(!isdigit(numero_doSetores_char[i])) {
-                erro("(x) NAO EH PERMITIDO LETRAS NESTE CAMPO. DIGITE UM VALOR VALIDO!");
+                erro("(x) NAO EH PERMITIDO LETRAS OU SIMBOLOS NESTE CAMPO. DIGITE UM VALOR VALIDO!");
                 printf("\n\n-> ");
                 condicaoOk = 0;
                 break;
@@ -1478,13 +1483,14 @@ int main() {
     while(1) {
         char opcaoMenu[TAM_MIN];
 
-        // Variaveis de mudanca de estado (interno)  - (certificam que algumas mudancas so podem ser realizadas mediante outras)
+        // FLAGS INTERNAS (Variaveis de mudanca de estado)  - (certificam que algumas mudancas so podem ser realizadas mediante outras)
         int menuOk = 0; // Verifica no fim do loop se alguma caractere condiz com algum menu abaixo. Se n condiz, continua 0.
 
         // *MENU DE OPCOES
 
         // *Verifica se o user ja cadastrou pelo menos 1 setor pela primeira vez (altera o txt do menu A)
         //Tambem mostra o menu de acordo com a acao executada (altera o valor de 'showMenu' para 0. Se for 0, o menu aparece)
+        
         if(showMenu == 0) {
             if(setorCadastrado_ok == 0) viewMenu("\033[1;33m[!] CADASTRE OS PRIMEIROS SETORES\033[0m");
             else viewMenu("CADASTRAR NOVO(S) SETOR(ES)");
@@ -1492,12 +1498,12 @@ int main() {
 
         showMenu = 0;
 
-        printf("\n\n\n(#) Digite uma opcao somente dentre os menus acima\n-> ");
+        confirmacao("\n(#) Digite uma opcao somente dentre os menus acima\n-> ");
         setbuf(stdin,NULL);
         fgets(opcaoMenu, sizeof(opcaoMenu), stdin);
 
 
-        // Cadastrar um novo setor
+        // CADASTRAR SETORES
         if(tolower(opcaoMenu[0]) == 'a') {
             menuOk = 1;
 
@@ -1510,12 +1516,12 @@ int main() {
             showMenu = 0;
         }
 
-        // Remover um setor
+        // REMOVER UM SETOR
         if(tolower(opcaoMenu[0]) == 'b') {
             menuOk = 1;
 
-            if(setorCadastrado_ok == 0) {
-                printf("\n\n(!) ACAO NEGADA - < NAO E POSSIVEL REMOVER UM SETOR SEM ANTES CADASTRAR UM >");
+            if(!setorCadastrado_ok) {
+                erro("(x) ACAO NEGADA - < NAO E POSSIVEL REMOVER UM SETOR SEM ANTES CADASTRAR UM >");
                 showMenu = 1;
             }
             else {
@@ -1524,50 +1530,67 @@ int main() {
             }
         }
 
-        // Cadastrar um novo animal
+        // CADASTRAR UM NOVO ANIMAL
         if(tolower(opcaoMenu[0]) == 'c') {
             menuOk = 1;
-
-            cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-            animalCadastrado_Ok = 1;
-            showMenu = 0;
+            
+            if(!setorCadastrado_ok) {
+                erro("(x) ACAO NEGADA - < NAO E POSSIVEL ADICIONAR UM ANIMAL SEM ANTES CADASTRAR UM SETOR >");
+                showMenu = 1;
+            } else {
+                cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
+                animalCadastrado_Ok = 1;
+                showMenu = 0;
+            }
         }
 
-        // Editar informacoes do animal
+        // EDITAR INFO. DO ANIMAL
         if(tolower(opcaoMenu[0]) == 'd') {
             menuOk = 1;
 
-            if(animalCadastrado_Ok == 0) {
-                printf("\n\n(!) ACAO NEGADA - < NAO E POSSIVEL REMOVER UM SETOR SEM ANTES CADASTRAR UM >");
+            if(!animalCadastrado_Ok) {
+                erro("(x) ACAO NEGADA - < NAO EH POSSIVEL EDITAR UM ANIMAL SEM ANTES CADASTRAR UM >");
                 showMenu = 1;
-            }
-            else {
-
+            } else {
                 editAnimal(&zoologico, setores, numero_doSetores, nAnimais, qntdAnimais, numero_daJaulas);
             }
         }
 
-        // Animal mais pesado por setor
+        // ANIMAL MAIS PESADO P/ SETOR
         if(tolower(opcaoMenu[0]) == 'e') {
             menuOk = 1;
-            animal_maisPesado(setores, zoologico, numero_doSetores, numero_daJaulas, nAnimais);
+
+            if(!animalCadastrado_Ok) {
+                erro("(x) ACAO NEGADA - < NAO EH POSSIVEL FAZER UMA BUSCA DE ANIMAIS SEM ANTES CADASTRAR UM >");
+                showMenu = 1;
+            } else {
+                animal_maisPesado(setores, zoologico, numero_doSetores, numero_daJaulas, nAnimais);
+                showMenu = 0;
+            }
         }
 
+        // LISTA DE SETORES
         if(tolower(opcaoMenu[0]) == 'f') {
             menuOk = 1;
-            viewSetores(setores, numero_doSetores);
+            
+            if(!setorCadastrado_ok) {
+                erro("(x) ACAO NEGADA - < NAO E POSSIVEL LISTAR SETORES INEXISTENTES >");
+                showMenu = 1;
+            }
+            else {
+                viewSetores(setores, numero_doSetores);
+                showMenu = 0;
+            }
         }
 
         
 
         // Se o caractere digitado nao entrou em nenhum menu
         if(menuOk == 0) {
-            printf("\n\n\n(!) VOCE DIGITOU UM CARACTERE INVALIDO OU FORA DOS PARAMETROS.");
+            erro("\n(x) VOCE DIGITOU UM CARACTERE INVALIDO OU FORA DOS PARAMETROS.");
             showMenu = 1;
         }
     }
-
-    printf("\nChegou aqui");
 
     return 0;
 }
