@@ -724,7 +724,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
 
 
 //Funcao para remover setores
-void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int ***qntdAnimais, int *p_setorCadastrado_Ok) {
+void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo, int ***qntdAnimais, int *p_setorCadastrado_Ok, int *p_animalCadastrado_ok) {
     
     char select[TAM], nomeSetor_remove[TAM];
     int indiceSetor_remove;
@@ -759,6 +759,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
 
         if(nomeSetor_remove[0] == ' ' || nomeSetor_remove[0] == '\0') {
             erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME DO SETOR. DIGITE UM NOME VALIDO!");
+            printf("\n->");
             continue; // Reinicia o loop, pedindo novamente o nome do setor
         }
 
@@ -771,6 +772,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
 
         if(!setorEncontrado) {
             erro("(x) SETOR NAO ENCONTRADO. TENTE OUTRO");
+            printf("\n->");
             continue; // Reinicia o loop, pedindo novamente o nome do setor
         }
 
@@ -783,7 +785,6 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
     for(int setor = 0; setor < (*a_numero_doSetores); setor++) {
         if(strcmp(nomeSetor_remove, (*m_Setores)[setor]) == 0) {
             indiceSetor_remove = setor;
-            printf("\n10 ->>>>>>>%d", indiceSetor_remove);
         break;  // Se encontrado, não precisa continuar procurando
         }
     }
@@ -805,10 +806,15 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
     *qntdAnimais = realloc(*qntdAnimais, (*a_numero_doSetores - 1) * sizeof(int));
 
     (*a_numero_doSetores)--;
-    if (*a_numero_doSetores == 0) *p_setorCadastrado_Ok = 0;
+
+    if (*a_numero_doSetores == 0){ 
+        *p_setorCadastrado_Ok = 0;
+        *p_animalCadastrado_ok = 0;
+    }
 
     sucesso("(<->) DEU CERTO! SETOR REMOVIDO PERMANENTEMENTE COM EXITO.");
-    }
+}
+
 
 // *NOVA FUNCAO - Esta funcao permite editar as informacoes do animal 
 void editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, int qntdAnimais, int **matriz_qntdAnimais, int numeroJaulas) {
@@ -1536,7 +1542,7 @@ int main() {
                 showMenu = 1;
             }
             else {
-                removeSetor(&setores, p_numero_doSetores, &zoologico, &qntdAnimais, p_setorCadastrado_Ok);
+                removeSetor(&setores, p_numero_doSetores, &zoologico, &qntdAnimais, p_setorCadastrado_Ok, p_animalCadastrado_ok);
                 showMenu = 0;
             }
         }
