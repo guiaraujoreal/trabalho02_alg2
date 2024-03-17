@@ -287,6 +287,8 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
     do {
         scanf("%s", input);
 
+        int dispJaula = 1; // Flag que verifica a disponibilidade da jaula
+
         // Verificar se a entrada contém apenas dígitos
         int i = 0;
         while (input[i] != '\0') {
@@ -307,7 +309,24 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
             erro("(x) VOCE DIGITOU UM CARACTERE INVALIDO. TENTE NOVAMENTE!\n\n");
             printf("\n\n-> ");
         }
-    } while (numero_daJaula <= 0 || numero_daJaula > qntdJaulas);
+
+        // Verificar disponibilidade de animais antes de aceitar o comando
+        for(int m = 0; m < qntdAnimais; m++) {
+            if(m_qntdAnimal[indiceSetor][numero_daJaula - 1] >= qntdAnimais) {
+                dispJaula = 0;
+                break;
+            }
+        }
+
+        if(!dispJaula) {
+            alerta("(!) JAULA INSUFICIENTE. ESCOLHA OUTRA.");
+            printf("\n\n ->");
+            continue;
+        }
+
+        break;
+
+    } while (1);
 
     int indice_daJaula = numero_daJaula - 1;
 
