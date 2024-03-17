@@ -4,6 +4,7 @@
 #include <string.h>
 #include <locale.h>
 #include <limits.h>
+#include <unistd.h>
 
 #define TAM 100
 #define TAM_MIN 20
@@ -599,18 +600,24 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
     // Realoca memória para os nomes dos setores
     *m_Setores = (char **)realloc(*m_Setores, ((*a_numero_doSetores) + qntdSetor) * sizeof(char *));
     if (*m_Setores == NULL) {
+        erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+        sleep(3);
         exit(1);
     }
 
     // Realoca memória para as informações dos animais no zoo
     *m_Zoo = (Info_animal ***)realloc(*m_Zoo, ((*a_numero_doSetores) + qntdSetor) * sizeof(Info_animal **));
     if (*m_Zoo == NULL) {
+        erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+        sleep(3);
         exit(1);
     }
 
     // Realoca memória para as informações da quantia de animais
     *qntdAnimais = (int **)realloc(*qntdAnimais, ((*a_numero_doSetores) + qntdSetor) * sizeof(int *));
     if (*qntdAnimais == NULL) {
+        erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+        sleep(3);
         exit(1);
     }
 
@@ -623,6 +630,8 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
         // Aloca memória para o nome do setor
         (*m_Setores)[i] = (char *)malloc(TAM * sizeof(char));
         if ((*m_Setores)[i] == NULL) {
+            erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+            sleep(3);
             exit(1);
         }
 
@@ -681,17 +690,23 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
         // Aloca memória para as informações dos animais no setor
         (*m_Zoo)[i] = (Info_animal **)malloc(nJaulas * sizeof(Info_animal *));
         if ((*m_Zoo)[i] == NULL) {
+            erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+            sleep(3);
             exit(1);
         }
 
         (*qntdAnimais)[i] = (int *)malloc(nJaulas * sizeof(int));
         if ((*qntdAnimais)[i] == NULL) {
+            erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+            sleep(3);
             exit(1);
         }
 
         for (int j = 0; j < nJaulas; j++) {
             (*m_Zoo)[i][j] = (Info_animal *)malloc(nAnimais * sizeof(Info_animal));
             if ((*m_Zoo)[i][j] == NULL) {
+                erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+                sleep(3);
                 exit(1);
             }
         }
@@ -1443,6 +1458,8 @@ int main() {
     qntdAnimais = (int **)malloc(numero_doSetores * sizeof(int *));
 
     if(zoologico == NULL || setores == NULL || qntdAnimais == NULL){
+        erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+        sleep(3);
         exit(1);
     }
 
@@ -1452,6 +1469,8 @@ int main() {
         qntdAnimais[setor] = (int *)malloc(numero_daJaulas * sizeof(int));
 
         if(zoologico[setor] == NULL || setores[setor] == NULL || qntdAnimais[setor] == NULL){
+            erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+            sleep(3);
             exit(1);
         }
 
@@ -1459,6 +1478,8 @@ int main() {
             zoologico[setor][jaula] = (Info_animal *)malloc(nAnimais * sizeof(Info_animal));
 
             if(zoologico[setor][jaula] == NULL){
+                erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
+                sleep(3);
                 exit(1);
             }
 
