@@ -1340,7 +1340,7 @@ void liberarMemoria(Info_animal ****zoologico, char ***setores, int ****qntdAnim
 void exitPrograma(Info_animal ****zoologico, char ***setores, int ***qntdAnimais, int numero_doSetores, int numero_daJaulas) {
     char resposta[TAM_MIN];
 
-    erro("\n\t\t\t==== (-) ENCERRAR ZOOFILER ====");
+    erro("\n\t\t\t==== (-) ENCERRAR ZOOLOGIX ====");
 
     alerta("\n(!) DESEJA REALMENTE ENCERRAR O PROGRAMA? AO ENCERRAR VOCE PERDERAH TODOS OS DADOS");
     printf("\n\n(DIGITE 'S' PARA 'SIM' E QUALQUER DIGITO PARA 'NAO')\n\n-> ");
@@ -1368,12 +1368,12 @@ void exitPrograma(Info_animal ****zoologico, char ***setores, int ***qntdAnimais
         liberarMemoria(zoologico, setores, &qntdAnimais, numero_doSetores, numero_daJaulas);
 
         // Encerra o programa
-        destaque("\n(#) OBRIGADO POR USAR O ZOOFILER. ATE BREVE!");
+        destaque("\n(#) OBRIGADO POR USAR O ZOOLOGIX. ATE BREVE!");
         alerta("Encerrando");
 
         /// Efeito loading
         for(int i = 0; i < 100; i++) {
-            usleep(30000);
+            usleep(30000); // Recurso depreciado, mas usual ainda
             printf("\033[1;33m.\033[0m");
         }
 
@@ -1401,9 +1401,9 @@ int main() {
     int *p_animalCadastrado_ok = &animalCadastrado_Ok;
     int primeiroCadastro_Setor_Ok = 0;
 
-    destaque("\t\t\t\t===== ZOOFILER =====");
+    destaque("\t\t\t\t===== ZOOLOGIX =====");
 
-    printf("\n\n\tBem vindo(a) ao ZOOFILER! Seu programa de gestao para zoologicos\n");
+    printf("\n\n\tBem vindo(a) ao ZOOLOGIX! Seu programa de gestao para zoologicos\n");
     printf("\n(!) Antes de tudo, precisamos cadastrar algumas informacoes a respeito do zoologico.\nPor favor, responda as instrucoes a seguir.");
 
     printf("\n\n(+) Digite o numero de setores: ");
