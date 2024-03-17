@@ -1,3 +1,10 @@
+/* *PARTICIPANTES
+01 - João Guilherme Araújo Viana - 12311BSI238
+02 - Cauã Gozzer de Moraes Carbonell - 12311BSI259
+03 - João Gabriel Santos Rodrigues - 12311BSI200
+04 - Andreza Batista Alves - 12311BSI246
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
