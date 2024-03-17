@@ -90,7 +90,7 @@ void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdS
 void cadSetor(char **c_Setores, int f_numero_doSetores) {
     confirmacao("\n\n\t\t=== (+) CADASTRAR SETORES PELA PRIMEIRA VEZ ===\n");
     alerta("(!) NAO EH PERMITIDO NUMEROS, CARACTERES ESPECIAIS OU NOMES DE SETORES JA CADASTRADOS");
-    alerta("(!) CUIDADO PARA NAO ADICIONAR ESPACOS EXTRAS AO FIM DA LINHA. ISSO PODE INTERFERIR NA BUSCA DOS SETORES");
+    alerta("(!) CUIDADO PARA NAO ADICIONAR ESPACOS EXTRAS AO FIM DA LINHA. ISSO PODE INTERFERIR NA BUSCA DOS SETORES\n");
     
     for(int i = 0; i < f_numero_doSetores; i++) {
         printf("\n(#) Nome do %do setor: ", i + 1);
@@ -732,64 +732,50 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
 
     // Casos de erro para nomeSetor_remove
     do {
-            int condicaoOk = 1; // Flag da condicao se der tudo certo
-            int setorEncontrado = 0; // Flag que verifica se o setor digitado foi encontrado
+        int setorEncontrado = 0; // Inicializa como 0 para cada iteração do loop
 
-            setbuf(stdin, NULL);
-            fgets(nomeSetor_remove, sizeof(nomeSetor_remove), stdin);
+        setbuf(stdin, NULL);
+        fgets(nomeSetor_remove, sizeof(nomeSetor_remove), stdin);
 
-            // Remove o caractere de nova linha, se houver
-            if(nomeSetor_remove[strlen(nomeSetor_remove) - 1] == '\n') {
-                nomeSetor_remove[strlen(nomeSetor_remove) - 1] = '\0';
-            }
+        // Remove o caractere de nova linha, se houver
+        if(nomeSetor_remove[strlen(nomeSetor_remove) - 1] == '\n') {
+            nomeSetor_remove[strlen(nomeSetor_remove) - 1] = '\0';
+        }
 
-            if(nomeSetor_remove[0] == ' ' || nomeSetor_remove[0] == '\0') {
-                erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME DO SETOR. DIGITE UM NOME VALIDO!");
-                printf("\n\n-> ");
-                continue;
-            }
+        if(nomeSetor_remove[0] == ' ' || nomeSetor_remove[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME DO SETOR. DIGITE UM NOME VALIDO!");
+            continue; // Reinicia o loop, pedindo novamente o nome do setor
+        }
 
-
-            // Verifica se tem um numero no nome
-            for(int y = 0; nomeSetor_remove[y] != '\0'; y++) {
-                if(isdigit(nomeSetor_remove[y])) {
-                    erro("(x) NAO EH PERMITIDO NUMEROS NO NOME. ESCREVA UM NOME VALIDO!");
-                    printf("\n\n-> ");
-                    condicaoOk = 0;
-                    break;
-                }
-            }
-
-            if(condicaoOk) {
-
-                for(int setor = 0; setor < *(a_numero_doSetores); setor++) {
-                    if(strcmp(nomeSetor_remove, *(m_Setores)[setor]) == 0) {
-                        setorEncontrado = 1;
-                        break;
-                    }
-                }
-
-                if(!setorEncontrado) {
-                    erro("(x) SETOR NAO ENCONTRADO. TENTE OUTRO");
-                    printf("\n\n-> ");
-                    continue;
-                }
-
+        for(int setor = 0; setor < *a_numero_doSetores; setor++) {
+            if(strcmp(nomeSetor_remove, (*m_Setores)[setor]) == 0) {
+                setorEncontrado = 1;
                 break;
             }
+        }
+
+        if(!setorEncontrado) {
+            erro("(x) SETOR NAO ENCONTRADO. TENTE OUTRO");
+            continue; // Reinicia o loop, pedindo novamente o nome do setor
+        }
+
+        // Se chegou aqui, significa que o setor foi encontrado, então podemos sair do loop
+        break;
 
     } while(1);
+
 
     for(int setor = 0; setor < (*a_numero_doSetores); setor++) {
         if(strcmp(nomeSetor_remove, (*m_Setores)[setor]) == 0) {
             indiceSetor_remove = setor;
+            printf("\n10 ->>>>>>>%d", indiceSetor_remove);
+        break;  // Se encontrado, não precisa continuar procurando
         }
     }
 
-    // Realocar memória para reduzir o tamanho dos arrays em uma unidade
-    *m_Setores = realloc(*m_Setores, (*a_numero_doSetores - 1) * sizeof(char *));
-    *m_Zoo = realloc(*m_Zoo, (*a_numero_doSetores - 1) * sizeof(Info_animal **));
-    *qntdAnimais = realloc(*qntdAnimais, (*a_numero_doSetores - 1) * sizeof(int *));
+    // Liberar a memória do elemento removido
+    free((*m_Setores)[indiceSetor_remove]);
+    free((*m_Zoo)[indiceSetor_remove]);
 
     // Mover os elementos restantes para preencher o espaço do setor removido
     for (int i = indiceSetor_remove; i < *a_numero_doSetores - 1; i++) {
@@ -798,14 +784,16 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
         (*qntdAnimais)[i] = (*qntdAnimais)[i + 1];
     }
 
-
+    // Realocar memória para reduzir o tamanho dos arrays em uma unidade
+    *m_Setores = realloc(*m_Setores, (*a_numero_doSetores - 1) * sizeof(char *));
+    *m_Zoo = realloc(*m_Zoo, (*a_numero_doSetores - 1) * sizeof(Info_animal **));
+    *qntdAnimais = realloc(*qntdAnimais, (*a_numero_doSetores - 1) * sizeof(int));
 
     (*a_numero_doSetores)--;
-
-    if(*a_numero_doSetores == 0) *p_setorCadastrado_Ok = 0;
+    if (*a_numero_doSetores == 0) *p_setorCadastrado_Ok = 0;
 
     sucesso("(<->) DEU CERTO! SETOR REMOVIDO PERMANENTEMENTE COM EXITO.");
-}
+    }
 
 // *NOVA FUNCAO - Esta funcao permite editar as informacoes do animal 
 void editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, int qntdAnimais, int **matriz_qntdAnimais, int numeroJaulas) {
@@ -1283,6 +1271,8 @@ void editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, i
         default:
             printf("\n\nErro");
     }
+
+    sucesso("<-> INFORMACOES DO ANIMAL ATUALIZADAS COM SUCESSO!");
 
 }
 
