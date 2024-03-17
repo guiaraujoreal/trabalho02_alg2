@@ -169,7 +169,7 @@ void viewJaulas(int **m_qntdAnimal,int qntdJaulas, int indiceSetor, int qntdAnim
 // Funcao para mostrar os animais de uma jaula
 void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula, int qntdAnimais, int qntd_MAX_Animais) {
     confirmacao("\t\t==== (#) ANIMAIS REGISTRADOS NESSA JAULA ====");
-    printf("\n\n\n\n#\t\tCOD.\t\tNOME\t\tALTURA(cm)\tPESO(Kg)\t\t\tESPECIE\n");
+    printf("\n\n\n\n#\t\tCOD.\t\tNOME\t\tALTURA(cm)\t\ttPESO(Kg)\t\tESPECIE\n");
 
     // Verificar se numero_doSetor e numero_daJaula estão dentro dos limites
     if (qntdAnimais == 0) {
@@ -211,7 +211,7 @@ void viewAnimais(Info_animal ***m_animal, int numero_doSetor, int numero_daJaula
                 especie[especie_len - 1] = '\0';
             }
 
-            printf("\n%d\t\t%s\t\t%s\t\t%.2f\t\t\t\t%.2f\t\t%s", animal + 1, codigo, nome, altura, peso, especie);
+            printf("\n%d\t\t%s\t\t%s\t\t%.2f\t\t\t%.2f\t\t%s", animal + 1, codigo, nome, altura, peso, especie);
         }
 
 
@@ -241,13 +241,6 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
 
         //Recupera o indice do setor digitado
         for(int setor = 0; setor < qntdSetores; setor++) {
-
-            // // Remove a quebra de linha
-            // for(int i = 0; set[i] != '\0'; i++) {
-            //     if(set[i] == '\n') {
-            //         set[i] = '\0';
-            //     }
-            // }
 
             if(set[strlen(set) - 1] == '\n') {
                 set[strlen(set) - 1] = '\0';
@@ -326,9 +319,9 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
     printf("\n-> ");
 
     // Remove o caractere de nova linha, se houver
-        if(codigo[strlen(codigo) - 1] == '\n') {
-            codigo[strlen(codigo) - 1] = '\0';
-        }
+    if(codigo[strlen(codigo) - 1] == '\n') {
+        codigo[strlen(codigo) - 1] = '\0';
+    }
 
 
     // Casos de erro para codigo
@@ -441,7 +434,7 @@ void cadAnimal(Info_animal ***animal, char **matrizSetores, int qntdSetores, int
                     pontoDecimal = 1;
                 } else {
                     // Outro caractere que nao eh digito ou mais de um ponto decimal
-                    printf("(x) DIGITE UM VALOR NUMERICO VALIDO!\n\n");
+                    erro("(x) DIGITE UM VALOR NUMERICO VALIDO!\n\n");
                     condicaoOk = 0;
                     break;
                 }
@@ -649,6 +642,8 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
                 continue;
             }
 
+
+
             // Verifica se tem um numero no nome
             for(int y = 0; (*m_Setores)[i][y] != '\0'; y++) {
                 if(isdigit((*m_Setores)[i][y])) {
@@ -749,6 +744,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
                 continue;
             }
 
+
             // Verifica se tem um numero no nome
             for(int y = 0; nomeSetor_remove[y] != '\0'; y++) {
                 if(isdigit(nomeSetor_remove[y])) {
@@ -807,19 +803,69 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
 }
 
 // *NOVA FUNCAO - Esta funcao permite editar as informacoes do animal 
-int editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, int qntdAnimais, int **matriz_qntdAnimais, int numeroJaulas) {
+void editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, int qntdAnimais, int **matriz_qntdAnimais, int numeroJaulas) {
     int numeroAnimal = -1; // O -1 eh apenas um valor diferente de zero para verificar o retorno da funcao
     char codAnimal[TAM];
     char nomeSetor[TAM];
     int indiceSetor = -1, nJaula, indiceJaula, indiceAnimal;
+    char numeroDaJaula[TAM]; // Usa-se char para verficiar os casos de erro
 
-    printf("\n\n\t\t\t===== (@) EDITAR INFORMACOES DE UM ANIMAL =====\n");
+    confirmacao("\n\t\t\t===== (@) EDITAR INFORMACOES DE UM ANIMAL =====\n");
 
     viewSetores(matrizSetores, numeroSetores);
 
+    printf("\n\n(?) Em que setor esta este animal? \n-> ");
+
+    // Casos de erro para nomeSetor
     do {
-        printf("\n\n(?) Em que setor esta este animal? \n-> ");
+        int condicaoOk = 1; // Flag da condicao se der tudo certo
+        int setorEncontrado = 0; // Flag que verifica se o setor digitado foi encontrado
+
+        setbuf(stdin, NULL);
         fgets(nomeSetor, sizeof(nomeSetor), stdin);
+
+        // Remove o caractere de nova linha, se houver
+        if(nomeSetor[strlen(nomeSetor) - 1] == '\n') {
+            nomeSetor[strlen(nomeSetor) - 1] = '\0';
+        }
+
+        if(nomeSetor[0] == ' ' || nomeSetor[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME DO SETOR. DIGITE UM NOME VALIDO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        // Sai da funcao se 'X' for digitado
+        if(tolower(nomeSetor[0]) == 'x') {
+            destaque("(#) VOCE ESCOLHEU SAIR");
+            return;
+        }
+
+        // Verifica se tem um numero no nome
+        for(int y = 0; nomeSetor[y] != '\0'; y++) {
+            if(isdigit(nomeSetor[y])) {
+                erro("(x) NAO EH PERMITIDO NUMEROS NO NOME. ESCREVA UM NOME VALIDO!");
+                printf("\n\n-> ");
+                condicaoOk = 0;
+                break;
+            }
+        }
+
+        if(condicaoOk) {
+
+            for(int setor = 0; setor < numeroSetores; setor++) {
+                if(strcmp(nomeSetor, matrizSetores[setor]) == 0) {
+                    setorEncontrado = 1;
+                    break;
+                }
+            }
+
+            if(!setorEncontrado) {
+                erro("(x) SETOR NAO ENCONTRADO. TENTE OUTRO");
+                printf("\n\n-> ");
+                continue;
+            }
+        }
 
         // Retorna o indice do setor, se achar
         for(int setor = 0; setor < numeroSetores; setor++) {
@@ -830,15 +876,64 @@ int editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, in
         }
 
         if(indiceSetor == -1) {
-            printf("\n\n(!) SETOR NAO ENCONTRADO. DIGITE NOVAMENTE OU DIGITE 'E' PARA SAIR");
+            erro("\n\n(x) SETOR NAO ENCONTRADO. DIGITE NOVAMENTE OU DIGITE 'X' PARA SAIR");
+            printf("\n\n-> ");
+            continue;
         }
 
-    } while(indiceSetor == -1);
+        break;
+
+    } while(1);
 
     viewJaulas(matriz_qntdAnimais, numeroJaulas, indiceSetor, qntdAnimais);
 
     printf("\n\n(?) Em que jaula este animal habita?\n-> ");
-    scanf("%d", &nJaula);
+
+    // Casos de erro para qntdSetor
+    do {
+        int situacaoOk = 1; // Flag q verifica a situacao dos casos de erro
+
+        setbuf(stdin, NULL);
+
+        fgets(numeroDaJaula, sizeof(numeroDaJaula), stdin);
+
+        // Remove quebra de linha
+        if(numeroDaJaula[strlen(numeroDaJaula) - 1] == '\n') {
+            numeroDaJaula[strlen(numeroDaJaula) - 1] = '\0';
+        }
+
+        // Evita espacos vazios
+        if(numeroDaJaula[0] == ' ' || numeroDaJaula[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU LINHAS VAZIAS. DIGITE UM VALOR VALIDO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+
+        // Verifica se a entrada eh um numero
+        for(int i = 0; numeroDaJaula[i] != '\0'; i++){
+            if(!isdigit(numeroDaJaula[i])) {
+                situacaoOk = 0;
+                break;
+            }
+        }
+        
+
+        if(!situacaoOk) {
+            erro("(x) VOCE DIGITOU UM VALOR INVALIDO. TENTE NOVAMENTE!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        nJaula = atoi(numeroDaJaula);
+
+        if(nJaula <= 0 || nJaula > numeroJaulas) {
+            erro("(x) VALOR FORA DA QUANTIDADE PRSENTE DE JAULAS");
+            printf("\n\n-> ");
+            continue;
+        } else break;
+
+    } while(1);
 
     indiceJaula = nJaula - 1;
 
@@ -846,10 +941,53 @@ int editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, in
 
     viewAnimais(*mZoo,indiceSetor,indiceJaula,indiceAnimal, qntdAnimais);
 
-    getchar();
-
     printf("\n\n(?) Qual o codigo do animal que voce editar as informacoes?\n-> ");
-    fgets(codAnimal, sizeof(codAnimal), stdin);
+
+    // Casos de erro para codAnimal
+    do {
+        int codigoExistente = 0; // Flag que verifica se o codigo existe ou nao
+
+        fgets(codAnimal, sizeof(codAnimal), stdin);
+
+        // Remove a quebra de linha
+        if(codAnimal[strlen(codAnimal) - 1] == '\n') {
+            codAnimal[strlen(codAnimal) - 1] = '\0';
+        }
+
+        // Evita linha vazia
+        if(codAnimal[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO RESPOSTA EM BRANCO. DIGITE O CODIGO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+
+
+        for(int animais = 0; animais < qntdAnimais; animais++) {
+            // Remove a qubra de linha antes da comparacao
+            for (int t = 0; (*mZoo)[indiceSetor][indiceJaula][animais].codigo[t] != '\0'; t++) {
+                if ((*mZoo)[indiceSetor][indiceJaula][animais].codigo[t] == '\n') {
+                    (*mZoo)[indiceSetor][indiceJaula][animais].codigo[t] = '\0';
+                    break;
+                }
+            }
+
+
+            if(strcmp((*mZoo)[indiceSetor][indiceJaula][animais].codigo, codAnimal) == 0) {
+                codigoExistente = 1;
+                break;
+            }
+        }
+
+        if(!codigoExistente) {
+            erro("(x) CODIGO NAO ENCONTRADO! TENTE NOVAMENTE.");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        break;
+
+    } while(1);
 
     // Confere se o codigo digitado esta registrado e dá retorno mediante a busca
     for(int n = 0; n < qntdAnimais; n++) {
@@ -857,7 +995,7 @@ int editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, in
     }
 
     /// Se nenhum registro foi encontrado
-    if(numeroAnimal == -1) return 0;
+    if(numeroAnimal == -1) return;
 
     printf("\n\n(#) ESTAS SAO AS INFORMACOES SALVAS DESTE ANIMAL: \n\nCOD.\t\tNOME\t\tPESO(Kg)\t\tALTURA(cm)\t\tESPECIE");
 
@@ -876,58 +1014,270 @@ int editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, in
     char opcao[TAM_MIN];
     
     printf("\n\n(#) ESCOLHA O QUE VOCE DESEJA EDITAR. EH ACEITO APENAS UMA EDICAO POR VEZ");
-    printf("\n\n(A) CODIGO\n(B) NOME\n(C) PESO\n(D) ALTURA\n(E) ESPECIE\n(F) FECHAR MENU DE EDICAO\n\n-> ");
+    printf("\n\n(A) CODIGO\n(B) NOME\n(C) PESO\n(D) ALTURA\n(E) ESPECIE\n(X) FECHAR MENU DE EDICAO\n\n-> ");
 
-    fgets(opcao, sizeof(opcao), stdin);
+
+    do {
+        fgets(opcao, sizeof(opcao), stdin);
+        
+        // Remove o caractere de nova linha, se houver
+        if(opcao[strlen(opcao) - 1] == '\n') {
+            opcao[strlen(opcao) - 1] = '\0';
+        }
+
+        // Volta ao menu
+        if(tolower(opcao[0]) == 'x') {
+            destaque("(#) VOCE ESCOLHEU SAIR");
+            return;
+        }
+
+        if (!isalpha(opcao[0]) || (tolower(opcao[0]) < 'a' || tolower(opcao[0]) > 'e') || opcao[1] != '\0') {
+            erro("(x) OPCAO INVALIDA OU FORA DOS PARAMETROS. DIGITE UMA DAS OPCOES ACIMA!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        break;
+
+    } while(1);
 
     char novoCodigo[TAM];
     char novoNome[TAM];
-    float novoPeso;
-    float novaAltura;
+    char novoPeso[TAM];
+    char novaAltura[TAM];
     char novaEspecie[TAM];
 
 
     switch(tolower(opcao[0])) {
         case 'a':
             printf("\n\n(?) Qual o novo codigo do animal?\n-> ");
-            fgets(novoCodigo, sizeof(novoCodigo), stdin);
 
-            strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].codigo, novoCodigo);
+            // Casos de erro para codigo
+            do {
+                int condicaoOk = 1; // Flag da condicao se der tudo certo
+                int codigoExistente = 0; // Flag que verifica se o codigo ja existe
+
+                setbuf(stdin, NULL);
+                fgets(novoCodigo, sizeof(novoCodigo), stdin);
+
+
+                if(novoCodigo[0] == ' ' || novoCodigo[0] == '\0') {
+                    erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO CODIGO. DIGITE UM CODIGO VALIDO!");
+                    printf("\n\n-> ");
+                    condicaoOk = 0;
+                }
+
+        
+                if(condicaoOk) {
+                    // Verifica se esse codigo ja pertence a outro animal
+                    for(int setor = 0; setor <  numeroSetores; setor++) {
+                        for(int jaula = 0; jaula <  numeroJaulas; jaula++) {
+                            for(int animais = 0; animais < qntdAnimais; animais++) {
+                                if(strcmp((*mZoo)[setor][jaula][animais].codigo, novoCodigo) == 0) {
+                                    codigoExistente = 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if(codigoExistente) {
+                        erro("(x) ESTE CODIGO JA EXISTE. DIGITE UM NOVO!");
+                        printf("\n\n-> ");
+                        continue;
+                    } 
+
+                    strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].codigo, novoCodigo);
+                    break;
+                }
+
+            } while(1);
+            
             break;
 
         case 'b':
             printf("\n\n(?) Qual o novo nome do animal?\n-> ");
-            fgets(novoNome, sizeof(novoNome), stdin);
 
-            strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].nome, novoNome);
+            // Casos de erro para nome
+            do {
+                int condicaoOk = 1; // Flag da condicao se der tudo certo
+
+                setbuf(stdin, NULL);
+                fgets(novoNome, sizeof(novoNome), stdin);
+
+                // Remove o caractere de nova linha, se houver
+                if(novoNome[strlen(novoNome) - 1] == '\n') {
+                    novoNome[strlen(novoNome) - 1] = '\0';
+                }
+
+                if(novoNome[0] == ' ' || novoNome[0] == '\0') {
+                    erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DO NOME. DIGITE UM NOME VALIDO!");
+                    printf("\n\n-> ");
+                    continue;
+                }
+
+                // Verifica se tem um numero no nome
+                for(int i = 0; novoNome[i] != '\0'; i++) {
+                    if(isdigit(novoNome[i])) {
+                        erro("(x) NAO EH PERMITIDO NUMEROS NO NOME. ESCREVA UM NOME VALIDO!");
+                        printf("\n\n-> ");
+                        condicaoOk = 0;
+                        break;
+                    }
+                }
+
+                if(!condicaoOk) {
+                    continue;
+                }
+
+                strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].nome, novoNome);
+                break;
+
+            } while(1);
+
             break;
-        
+
         case 'c':
             printf("\n\n(?) Qual o novo peso do animal?\n-> ");
-            scanf("%f", &novoPeso);
+            
+            // Casos de erro para peso
+            do {
+                int condicaoOk = 1; // Flag da condicao se der tudo certo
+                int pontoDecimal = 0; // A entrada pode haver o '.', em casos de valores decimais. Vamos incluir na condicao para que seja aceito
 
-            (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].peso = novoPeso;
+                setbuf(stdin, NULL);
+                fgets(novoPeso, sizeof(novoPeso), stdin);
+
+                // Remove o caractere de nova linha, se houver
+                if(novoPeso[strlen(novoPeso) - 1] == '\n') {
+                    novoPeso[strlen(novoPeso) - 1] = '\0';
+                }
+
+                // Verifica se ha espacos ou linha vazia
+                if(novoPeso[0] == ' ' || novoPeso[0] == '\0' || novoPeso[0] == '.') {
+                    erro("(x) NAO EH PERMITIDO RESPOSTAS EM BRANCO, COM ESPACOS INICIAIS OU PONTO UNICO. DIGITE UM PESO VALIDO!");
+                    printf("\n\n-> ");
+                    continue;
+                }
+
+
+
+                // Verifica se eh uma letra
+                for (int i = 0; novoPeso[i] != '\0'; i++) {
+                    if (!isdigit(novoPeso[i])) {
+                        if (novoPeso[i] == '.' && !pontoDecimal) {
+                            // Se encontrou um ponto decimal
+                            pontoDecimal = 1;
+                        } else {
+                            // Outro caractere que nao eh digito ou mais de um ponto decimal
+                            erro("(x) DIGITE UM VALOR NUMERICO VALIDO!\n\n");
+                            condicaoOk = 0;
+                            break;
+                        }
+                    }
+                }
+
+                if(condicaoOk) {
+                    (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].peso = atof(novoPeso); // Converte de string para float
+                    break;
+                }
+
+            } while(1);
+            
             break;
         
         case 'd':
             printf("\n\n(?) Qual a nova altura do animal?\n-> ");
-            scanf("%f", &novaAltura);
 
-            (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].altura = novaAltura;
+            // Casos de erro para peso
+            do {
+                int condicaoOk = 1; // Flag da condicao se der tudo certo
+                int pontoDecimal = 0; // A entrada pode haver o '.', em casos de valores decimais. Vamos incluir na condicao para que seja aceito
+
+                setbuf(stdin, NULL);
+                fgets(novaAltura, sizeof(novaAltura), stdin);
+
+                // Remove o caractere de nova linha, se houver
+                if(novaAltura[strlen(novaAltura) - 1] == '\n') {
+                    novaAltura[strlen(novaAltura) - 1] = '\0';
+                }
+
+                // Verifica se ha espacos ou linha vazia
+                if(novaAltura[0] == ' ' || novaAltura[0] == '\0' || novaAltura[0] == '.') {
+                    erro("(x) NAO EH PERMITIDO RESPOSTAS EM BRANCO, COM ESPACOS INICIAIS OU PONTO UNICO. DIGITE UM PESO VALIDO!");
+                    printf("\n\n-> ");
+                    continue;
+                }
+
+
+
+                // Verifica se eh uma letra
+                for (int i = 0; novaAltura[i] != '\0'; i++) {
+                    if (!isdigit(novaAltura[i])) {
+                        if (novaAltura[i] == '.' && !pontoDecimal) {
+                            // Se encontrou um ponto decimal
+                            pontoDecimal = 1;
+                        } else {
+                            // Outro caractere que nao eh digito ou mais de um ponto decimal
+                            erro("(x) DIGITE UM VALOR NUMERICO VALIDO!\n\n");
+                            condicaoOk = 0;
+                            break;
+                        }
+                    }
+                }
+
+                if(condicaoOk) {
+                    (*mZoo)[indiceSetor][indiceJaula][numeroAnimal].altura = atof(novaAltura); // Converte de string para float
+                    break;
+                }
+
+            } while(1);
+            
             break;
         
         case 'e':
             printf("\n\n(?) Edite a especie?\n-> ");
-            fgets(novaEspecie, sizeof(novaEspecie), stdin);
 
-            strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].especie, novaEspecie);
+            // Casos de erro para especie
+            do {
+                int condicaoOk = 1; // Flag da condicao se der tudo certo
+
+                setbuf(stdin, NULL);
+                fgets(novaEspecie, sizeof(novaEspecie), stdin);
+
+                // Remove o caractere de nova linha, se houver
+                if (novaEspecie[strlen(novaEspecie) - 1] == '\n') {
+                    novaEspecie[strlen(novaEspecie) - 1] = '\0';
+                }
+
+                if(novaEspecie[0] == ' ' || novaEspecie[0] == '\0') {
+                    erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DA ESPECIE. DIGITE UMA ESPECIE VALIDA!");
+                    printf("\n\n-> ");
+                    continue;
+                }
+
+                // Verifica se tem um numero no nome
+                for(int i = 0; novaEspecie[i] != '\0'; i++) {
+                    if(isdigit(novaEspecie[i])) {
+                        erro("(x) NAO EH PERMITIDO NUMEROS NA ESPECIE. ESCREVA UMA ESPECIE VALIDA!");
+                        printf("\n\n-> ");
+                        condicaoOk = 0;
+                        break;
+                    }
+                }
+
+                if(condicaoOk) {
+                    strcpy((*mZoo)[indiceSetor][indiceJaula][numeroAnimal].especie, novaEspecie);
+                    break;
+                }
+
+            } while(1);
+            
             break;
 
         default:
             printf("\n\nErro");
     }
-
-    return 1;
 
 }
 
@@ -944,7 +1294,7 @@ void viewMenu(char textMenu_A[TAM]) {
 
 int main() {
     Info_animal ***zoologico;
-    char **setores;
+    char **setores, numero_doSetores_char[TAM], numero_daJaulas_char[TAM], nAnimais_char[TAM];
     int numero_doSetores, numero_daJaulas, nAnimais, *p_numero_doSetores;
     int **qntdAnimais;
     p_numero_doSetores = &numero_doSetores;
@@ -966,15 +1316,132 @@ int main() {
     printf("\n(!) Antes de tudo, precisamos cadastrar algumas informacoes a respeito do zoologico.\nPor favor, responda as instrucoes a seguir.");
 
     printf("\n\n(+) Digite o numero de setores: ");
-    scanf("%d",&numero_doSetores);
+
+    // Casos de erro para numero_doSetores
+    do {
+        int condicaoOk = 1;
+
+        fgets(numero_doSetores_char, sizeof(numero_doSetores_char), stdin);
+
+        if(numero_doSetores_char[strlen(numero_doSetores_char) - 1] == '\n') {
+            numero_doSetores_char[strlen(numero_doSetores_char) - 1] = '\0';
+        }
+
+        if(numero_doSetores_char[0] == ' ' || numero_doSetores_char[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DA LINHA. DIGITE UM VALOR VALIDO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        // Verifica se eh uma letra
+        for (int i = 0; numero_doSetores_char[i] != '\0'; i++) {
+            if(!isdigit(numero_doSetores_char[i])) {
+                erro("(x) NAO EH PERMITIDO LETRAS NESTE CAMPO. DIGITE UM VALOR VALIDO!");
+                printf("\n\n-> ");
+                condicaoOk = 0;
+                break;
+            }
+        }
+
+        if(!condicaoOk) continue;
+
+        // Verifica se se eh maior que zero
+        if(atoi(numero_doSetores_char) <= 0) {
+            erro("(x) NAO EH PERMITIDO VALORES MENORES OU IGUAIS A ZERO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        numero_doSetores = atoi(numero_doSetores_char);
+        break;
+
+    } while(1);
 
     printf("\n(+) Agora, digite o numero de jaulas por setor: ");
-    scanf("%d", &numero_daJaulas);
+
+    // Casos de erro para numero_daJaulas
+    do {
+        int condicaoOk = 1;
+
+        fgets(numero_daJaulas_char, sizeof(numero_daJaulas_char), stdin);
+
+        if(numero_daJaulas_char[strlen(numero_daJaulas_char) - 1] == '\n') {
+            numero_daJaulas_char[strlen(numero_daJaulas_char) - 1] = '\0';
+        }
+
+        if(numero_daJaulas_char[0] == ' ' || numero_daJaulas_char[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DA LINHA. DIGITE UM VALOR VALIDO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        // Verifica se eh uma letra
+        for (int i = 0; numero_daJaulas_char[i] != '\0'; i++) {
+            if(!isdigit(numero_daJaulas_char[i])) {
+                erro("(x) NAO EH PERMITIDO LETRAS NESTE CAMPO. DIGITE UM VALOR VALIDO!");
+                printf("\n\n-> ");
+                condicaoOk = 0;
+                break;
+            }
+        }
+
+        if(!condicaoOk) continue;
+
+        // Verifica se se eh maior que zero
+        if(atoi(numero_daJaulas_char) <= 0) {
+            erro("(x) NAO EH PERMITIDO VALORES MENORES OU IGUAIS A ZERO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        numero_daJaulas = atoi(numero_daJaulas_char);
+        break;
+
+    } while(1);
 
     printf("\n(+) Agora, digite o numero de animais por jaula: ");
-    scanf("%d", &nAnimais);
 
-    printf("\n\n(<->) So um instante, estamos salvando suas informacoes...");
+    // Casos de erro para nAnimais
+    do {
+        int condicaoOk = 1;
+
+        fgets(nAnimais_char, sizeof(nAnimais_char), stdin);
+
+        if(nAnimais_char[strlen(nAnimais_char) - 1] == '\n') {
+            nAnimais_char[strlen(nAnimais_char) - 1] = '\0';
+        }
+
+        if(nAnimais_char[0] == ' ' || nAnimais_char[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DA LINHA. DIGITE UM VALOR VALIDO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        // Verifica se eh uma letra
+        for (int i = 0; nAnimais_char[i] != '\0'; i++) {
+            if(!isdigit(nAnimais_char[i])) {
+                erro("(x) NAO EH PERMITIDO LETRAS NESTE CAMPO. DIGITE UM VALOR VALIDO!");
+                printf("\n\n-> ");
+                condicaoOk = 0;
+                break;
+            }
+        }
+
+        if(!condicaoOk) continue;
+
+        // Verifica se se eh maior que zero
+        if(atoi(nAnimais_char) <= 0) {
+            erro("(x) NAO EH PERMITIDO VALORES MENORES OU IGUAIS A ZERO!");
+            printf("\n\n-> ");
+            continue;
+        }
+
+        nAnimais = atoi(nAnimais_char);
+        break;
+
+    } while(1);
+
+    confirmacao("(<->) So um instante, estamos salvando suas informacoes...");
 
     zoologico = (Info_animal ***)malloc(numero_doSetores * sizeof(Info_animal **));
     setores = (char **)malloc(numero_doSetores * sizeof(char *));
@@ -1005,7 +1472,7 @@ int main() {
         }
     }
 
-     printf("\n\n(<->) DEU CERTO! INFORMACOES INICIAIS CONSIDERADAS");
+    sucesso("(<->) DEU CERTO! INFORMACOES INICIAIS CONSIDERADAS");
 
     // Loop para manter programa em funcionamento
     while(1) {
@@ -1099,19 +1566,6 @@ int main() {
             showMenu = 1;
         }
     }
-
-    
-
-    // cadSetor(setores, numero_doSetores);
-    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    // editAnimal(&zoologico, 1, 2, "123", nAnimais);
-    // removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
-    // // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    // addSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, nAnimais, &qntdAnimais);
-    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
-    // removeSetor(&setores, p_numero_doSetores, &zoologico, numero_daJaulas, &qntdAnimais);
-    // cadAnimal(zoologico, setores, numero_doSetores, qntdAnimais, numero_daJaulas, nAnimais);
 
     printf("\nChegou aqui");
 
