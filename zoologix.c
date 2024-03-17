@@ -51,8 +51,7 @@ void destaque(char *msg) {
 
 // Funcao que verifica o maior peso por setor
 void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdSetores, int qntdJaulas, int qntdAnimais) {
-    printf("\n\n\t\t===== (#) ANIMAIS MAIS PESADOS POR SETOR =====");
-    printf("\n\n#\t\tSETOR\t\tANIMAL\t\tPESO(Kg)");
+    destaque("\n\t\t===== (#) ANIMAIS MAIS PESADOS POR SETOR =====");
 
     for(int setor = 0; setor < qntdSetores; setor++) {
         float maiorPeso = __FLT_MIN__;
@@ -88,7 +87,10 @@ void animal_maisPesado(char **matrizSetores, Info_animal ***matrizZoo, int qntdS
                 }
             }
 
-        printf("\n\n%d\t\t%s\t\t%s\t\t%.2f", setor + 1, nomeSetor, nomeAnimal, maiorPeso);
+        printf("\n\n\033[1;34m%d\033[0m", setor + 1);
+        printf("\n\t\033[1;34mSETOR ->\033[0m"); printf(" %s", nomeSetor);
+        printf("\n\t\033[1;34mNOME ->\033[0m"); printf(" %s", nomeAnimal);
+        printf("\n\t\033[1;34mPESO ->\033[0m"); printf(" %.2f cm", maiorPeso);
     }
 
 }
