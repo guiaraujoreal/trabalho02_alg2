@@ -604,7 +604,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
     } while(1);
 
 
-    // Realoca memória para os nomes dos setores
+    // Realoca memoria para os nomes dos setores
     *m_Setores = (char **)realloc(*m_Setores, ((*a_numero_doSetores) + qntdSetor) * sizeof(char *));
     if (*m_Setores == NULL) {
         erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
@@ -612,7 +612,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
         exit(1);
     }
 
-    // Realoca memória para as informações dos animais no zoo
+    // Realoca memoria para as informações dos animais no zoo
     *m_Zoo = (Info_animal ***)realloc(*m_Zoo, ((*a_numero_doSetores) + qntdSetor) * sizeof(Info_animal **));
     if (*m_Zoo == NULL) {
         erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
@@ -620,7 +620,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
         exit(1);
     }
 
-    // Realoca memória para as informações da quantia de animais
+    // Realoca memoria para as informações da quantia de animais
     *qntdAnimais = (int **)realloc(*qntdAnimais, ((*a_numero_doSetores) + qntdSetor) * sizeof(int *));
     if (*qntdAnimais == NULL) {
         erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
@@ -634,7 +634,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
         printf("\n(?) Qual o nome do %do setor?\n-> ", i + 1);
         setbuf(stdin, NULL);
 
-        // Aloca memória para o nome do setor
+        // Aloca memoria para o nome do setor
         (*m_Setores)[i] = (char *)malloc(TAM * sizeof(char));
         if ((*m_Setores)[i] == NULL) {
             erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
@@ -694,7 +694,7 @@ void addSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Zoo,
 
         } while(1);
 
-        // Aloca memória para as informações dos animais no setor
+        // Aloca memoria para as informações dos animais no setor
         (*m_Zoo)[i] = (Info_animal **)malloc(nJaulas * sizeof(Info_animal *));
         if ((*m_Zoo)[i] == NULL) {
             erro("\n(x) UM ERRO CRITICO ACONTECEU. ENCERRANDO ESTE PROGRAMA");
@@ -796,7 +796,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
         }
     }
 
-    // Liberar a memória do elemento removido
+    // Liberar a memoria do elemento removido
     free((*m_Setores)[indiceSetor_remove]);
     free((*m_Zoo)[indiceSetor_remove]);
 
@@ -807,7 +807,7 @@ void removeSetor(char ***m_Setores, int *a_numero_doSetores, Info_animal ****m_Z
         (*qntdAnimais)[i] = (*qntdAnimais)[i + 1];
     }
 
-    // Realocar memória para reduzir o tamanho dos arrays em uma unidade
+    // Realocar memoria para reduzir o tamanho dos arrays em uma unidade
     *m_Setores = realloc(*m_Setores, (*a_numero_doSetores - 1) * sizeof(char *));
     *m_Zoo = realloc(*m_Zoo, (*a_numero_doSetores - 1) * sizeof(Info_animal **));
     *qntdAnimais = realloc(*qntdAnimais, (*a_numero_doSetores - 1) * sizeof(int));
@@ -1311,7 +1311,75 @@ void viewMenu(char textMenu_A[TAM]) {
 
     // A variavel textMenu_A altera o texto do menu A caso o user ja cadastrou um setor pela 1a vez ou nao
     printf("\n\n\n(A) %s\t\t(B) REMOVER UM SETOR\n\n(C) CADASTRAR UM NOVO ANIMAL\t\t(D) EDITAR INFO. DO ANIMAL", textMenu_A);
-    printf("\n\n(E) ANIMAL MAIS PESADO P/ SETOR\n\n(F) LISTA DE SETORES");
+    printf("\n\n(E) ANIMAL MAIS PESADO P/ SETOR\n\n(F) LISTA DE SETORES\t\t(X) ENCERRAR O PROGRAMA");
+}
+
+// Liberar a memoria
+void liberarMemoria(Info_animal ****zoologico, char ***setores, int ****qntdAnimais, int numero_doSetores, int numero_daJaulas) {
+    // Libera a memoria alocada para os animais em cada jaula
+    for(int setor = 0; setor < numero_doSetores; setor++) {
+        for(int jaula = 0; jaula < numero_daJaulas; jaula++) {
+            free((*zoologico)[setor][jaula]);
+        }
+    }
+
+    // Libera a memoria alocada para cada jaula e para o vetor de setores e quantidade de animais
+    for(int setor = 0; setor < numero_doSetores; setor++) {
+        free((*zoologico)[setor]);
+        free((*setores)[setor]);
+        free((*qntdAnimais)[setor]);
+    }
+
+    // Libera a memoria alocada para os arrays principais
+    free(*zoologico);
+    free(*setores);
+    free(*qntdAnimais);
+}
+
+// Funcao para fechar o programa
+void exitPrograma(Info_animal ****zoologico, char ***setores, int ***qntdAnimais, int numero_doSetores, int numero_daJaulas) {
+    char resposta[TAM_MIN];
+
+    erro("\n\t\t\t==== (-) ENCERRAR ZOOFILER ====");
+
+    alerta("\n(!) DESEJA REALMENTE ENCERRAR O PROGRAMA? AO ENCERRAR VOCE PERDERAH TODOS OS DADOS");
+    printf("\n\n(DIGITE 'S' PARA 'SIM' E QUALQUER DIGITO PARA 'NAO')\n\n-> ");
+
+    // Casos de erro para 'resposta'
+    do {
+        fgets(resposta, sizeof(resposta), stdin);
+
+        if(resposta[strlen(resposta) - 1] == '\n') {
+            resposta[strlen(resposta) - 1] = '\0';
+        }
+
+        if(resposta[0] == ' ' || resposta[0] == '\0') {
+            erro("(x) NAO EH PERMITIDO ESPACOS EM BRANCO OU NO INICIO DA LINHA. DIGITE NOVAMENTE!");
+            printf("\n-> ");
+            continue;
+        }
+
+        if(tolower(resposta[0]) != 's') {
+            destaque("(#) VOCE DESISTIU DE ENCERRAR O PROGRAMA");
+            return;
+        }
+
+        // Libera a memoria
+        liberarMemoria(zoologico, setores, &qntdAnimais, numero_doSetores, numero_daJaulas);
+
+        // Encerra o programa
+        destaque("\n(#) OBRIGADO POR USAR O ZOOFILER. ATE BREVE!");
+        alerta("Encerrando");
+
+        /// Efeito loading
+        for(int i = 0; i < 100; i++) {
+            usleep(30000);
+            printf("\033[1;33m.\033[0m");
+        }
+
+        exit(0);
+
+    } while(1);
 }
 
 
@@ -1605,6 +1673,13 @@ int main() {
                 viewSetores(setores, numero_doSetores);
                 showMenu = 0;
             }
+        }
+
+        // ENCERRAR O PROGRAMA
+        if(tolower(opcaoMenu[0]) == 'x') {
+            menuOk = 1;
+
+            exitPrograma(&zoologico, &setores, &qntdAnimais, numero_doSetores, numero_daJaulas);
         }
 
         
