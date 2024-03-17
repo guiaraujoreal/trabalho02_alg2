@@ -856,11 +856,6 @@ void editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, i
             continue;
         }
 
-        // Sai da funcao se 'X' for digitado
-        if(tolower(nomeSetor[0]) == 'x') {
-            destaque("(#) VOCE ESCOLHEU SAIR");
-            return;
-        }
 
         // Verifica se tem um numero no nome
         for(int y = 0; nomeSetor[y] != '\0'; y++) {
@@ -930,6 +925,11 @@ void editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, i
             continue;
         }
 
+        if(tolower(numeroDaJaula[0]) == 'x') {
+            destaque("(#) VOCE ESCOLHEU SAIR");
+            return;
+        }
+
 
         // Verifica se a entrada eh um numero
         for(int i = 0; numeroDaJaula[i] != '\0'; i++){
@@ -941,7 +941,7 @@ void editAnimal(Info_animal ****mZoo, char **matrizSetores, int numeroSetores, i
         
 
         if(!situacaoOk) {
-            erro("(x) VOCE DIGITOU UM VALOR INVALIDO. TENTE NOVAMENTE!");
+            erro("(x) VOCE DIGITOU UM VALOR INVALIDO. TENTE NOVAMENTE! ( OPU DIGITE X PARA SAIR)");
             printf("\n\n-> ");
             continue;
         }
@@ -1404,7 +1404,7 @@ int main() {
     destaque("\t\t\t\t===== ZOOLOGIX =====");
 
     printf("\n\n\tBem vindo(a) ao ZOOLOGIX! Seu programa de gestao para zoologicos\n");
-    printf("\n(!) Antes de tudo, precisamos cadastrar algumas informacoes a respeito do zoologico.\nPor favor, responda as instrucoes a seguir.");
+    alerta("(!) Antes de tudo, precisamos cadastrar algumas informacoes a respeito do zoologico.\nPor favor, responda as instrucoes a seguir.");
 
     printf("\n\n(+) Digite o numero de setores: ");
 
